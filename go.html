@@ -152,7 +152,7 @@
 
     // 3) Envio ao webhook: fire-and-forget, não bloqueia nada, falha em silêncio
     if (WEBHOOK_URL.indexOf("http") !== 0) return; // placeholder ainda não trocado
-    var payload = JSON.stringify({
+    var payload = new URLSearchParams({
       id_curto: id_curto,
       ttclid: ttclid,
       ad: ad,
@@ -160,13 +160,13 @@
       timestamp: new Date().toISOString()
     });
     try {
-      // text/plain + no-cors = "simple request": sem preflight CORS, então o
-      // keepalive funciona em todos os navegadores (inclusive in-app do TikTok).
+      // Formato formulário (application/x-www-form-urlencoded) = "simple request":
+      // sem preflight CORS, então o keepalive funciona em todos os navegadores
+      // (inclusive in-app do TikTok), e o n8n já entrega os campos prontos em $json.body.
       fetch(WEBHOOK_URL, {
         method: "POST",
         mode: "no-cors",
         keepalive: true,
-        headers: { "Content-Type": "text/plain;charset=UTF-8" },
         body: payload
       }).catch(function () {});
     } catch (e) { /* silencioso */ }
