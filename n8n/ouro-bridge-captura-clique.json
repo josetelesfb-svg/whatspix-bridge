@@ -1,0 +1,141 @@
+{
+  "name": "Ouro Bridge - Captura de Clique (TikTok)",
+  "nodes": [
+    {
+      "id": "1eef2e85-abc5-48b0-96f5-76fb82d83f44",
+      "name": "Clique na bridge page",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "7d8a2878-68bc-40b0-9652-81b1055dc992",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ouro-bridge-clique",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "bd92d439-aa70-4d92-8bf1-972362c07dc7",
+      "name": "Salvar clique",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3HxLTtbOps3mWweq",
+          "cachedResultName": "ouro_bridge_cliques"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_curto": "={{ ($json.body.id_curto || '').toString().slice(0, 32) }}",
+            "ttclid": "={{ ($json.body.ttclid || '').toString().slice(0, 500) }}",
+            "ad": "={{ ($json.body.ad || '').toString().slice(0, 100) }}",
+            "produto": "={{ ($json.body.produto || '').toString().slice(0, 100) }}",
+            "timestamp_clique": "={{ $json.body.timestamp || $now.toISO() }}",
+            "user_agent": "={{ ($json.headers['user-agent'] || '').toString().slice(0, 500) }}",
+            "ip": "={{ (() => { const ip = (($json.headers['x-real-ip'] || $json.headers['x-forwarded-for'] || '') + '').split(',')[0].trim(); return /^(10\\.|127\\.|192\\.168\\.|172\\.(1[6-9]|2\\d|3[01])\\.|::1|fc|fd|fe80)/i.test(ip) ? '' : ip; })() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id_curto",
+              "displayName": "id_curto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ttclid",
+              "displayName": "ttclid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ad",
+              "displayName": "ad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "produto",
+              "displayName": "produto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp_clique",
+              "displayName": "timestamp_clique",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user_agent",
+              "displayName": "user_agent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ip",
+              "displayName": "ip",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Clique na bridge page": {
+      "main": [
+        [
+          {
+            "node": "Salvar clique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "all"
+  }
+}
