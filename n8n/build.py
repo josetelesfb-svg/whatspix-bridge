@@ -35,7 +35,7 @@ wf3={"name":"Ouro Bridge - Toque no Botão WhatsApp (TikTok)",
  "settings":{"executionOrder":"v1","saveDataSuccessExecution":"none","saveDataErrorExecution":"all"}}
 
 # 3) Leona avisa: lead mandou a 1a mensagem (com telefone) -> casa com o toque mais recente sem dono
-prep=r"""// Chamado pela integração no início do fluxo da Leona. Precisa de "telefone" ({phone_number}).
+prep=r"""// Chamado pela integração no início do fluxo da Leona: "telefone" ({phone_number}) e "mensagem" (1ª mensagem, via Manipulador).
 const b = $input.first().json.body || {};
 const telefone = String(b.telefone ?? (b.contact && b.contact.number) ?? '').replace(/\D/g, '');
 if (!telefone) return [];
@@ -48,13 +48,15 @@ return [{ json: {
   agora: new Date(agora).toISOString(),
   desde: new Date(agora - JANELA_MIN * 60 * 1000).toISOString(),
 } }];"""
-pick=r"""// Entre os toques no botão sem telefone na janela, escolhe o código (se veio) ou o mais recente.
+pick=r"""// 1º: se a mensagem trouxe o código de atendimento -> casamento EXATO por id_curto (qualquer horário).
+// 2º: senão, entre os toques no botão sem telefone na janela, escolhe o mais recente.
 const p = $('Preparar').first().json;
-const rows = $input.all().map(i => i.json).filter(r => r.id_curto && r.whatsapp_em && r.whatsapp_em <= p.agora);
-if (!rows.length) return [];
-let escolhido = p.codigo ? rows.find(r => r.id_curto === p.codigo) : null;
+const todos = $input.all().map(i => i.json).filter(r => r.id_curto);
+let escolhido = p.codigo ? todos.find(r => r.id_curto === p.codigo) : null;
 let via = 'codigo';
 if (!escolhido) {
+  const rows = todos.filter(r => !r.telefone && r.whatsapp_em && r.whatsapp_em >= p.desde && r.whatsapp_em <= p.agora);
+  if (!rows.length) return [];
   rows.sort((a, b) => (a.whatsapp_em < b.whatsapp_em ? 1 : -1));
   escolhido = rows[0];
   via = rows.length === 1 ? 'horario' : 'horario_' + rows.length + '_candidatos';
@@ -63,13 +65,13 @@ return [{ json: { id_curto: escolhido.id_curto, telefone: p.telefone, lead_em: p
 wf2={"name":"Ouro Bridge - Liga ID ao Telefone (TikTok)",
  "nodes":[hook("1a mensagem do lead (Leona)","ouro-bridge-lead"),
    node("Preparar","n8n-nodes-base.code",2,[260,0],{"jsCode":prep}),
-   dt("Toques recentes sem dono",[520,0],"get",returnAll=True,matchType="allConditions",
-      filters={"conditions":[{"keyName":"telefone","condition":"isEmpty"},
+   dt("Clique pelo código ou toques recentes",[520,0],"get",returnAll=True,matchType="anyCondition",
+      filters={"conditions":[{"keyName":"id_curto","condition":"eq","keyValue":s("$json.codigo || '-'")},
                              {"keyName":"whatsapp_em","condition":"gte","keyValue":s("$json.desde")}]}),
    node("Escolher clique","n8n-nodes-base.code",2,[780,0],{"jsCode":pick}),
    dt("Gravar telefone no clique",[1040,0],"update",**by_id(s("$json.id_curto")),columns=mapping({
      "telefone":s("$json.telefone"),"lead_em":s("$json.lead_em"),"casado_por":s("$json.casado_por")}))],
- "connections":chain("1a mensagem do lead (Leona)","Preparar","Toques recentes sem dono","Escolher clique","Gravar telefone no clique"),
+ "connections":chain("1a mensagem do lead (Leona)","Preparar","Clique pelo código ou toques recentes","Escolher clique","Gravar telefone no clique"),
  "settings":{"executionOrder":"v1","saveDataSuccessExecution":"all","saveDataErrorExecution":"all"}}
 
 for f,w in [("ouro-bridge-captura-clique",wf1),("ouro-bridge-toque-botao",wf3),("ouro-bridge-liga-id-telefone",wf2)]:
