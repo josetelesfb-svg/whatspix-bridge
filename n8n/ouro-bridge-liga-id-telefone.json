@@ -1,0 +1,125 @@
+{
+  "name": "Ouro Bridge - Liga ID ao Telefone (TikTok)",
+  "nodes": [
+    {
+      "id": "0d91797a-56cf-4c9b-ab4d-6ebdaa4bafda",
+      "name": "1a mensagem do lead (Leona)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "5a0de3f3-1425-4ec2-b747-826b4811ea01",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ouro-bridge-lead",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "3326811b-5266-41d6-bdf1-484a6da9975c",
+      "name": "Extrair ID e telefone",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Lê a 1ª mensagem do lead (enviada pela Leona) e extrai o [ID:xxxx] da bridge page.\n// Sem [ID:...] na mensagem (ex.: lead do Meta) -> não faz nada.\nconst b = $input.first().json.body || {};\nconst msg = String(b.mensagem ?? b.message ?? b.text ?? '');\nconst m = msg.match(/\\[ID:([a-z0-9]{6,16})\\]/i);\nif (!m) return [];\nconst telefone = String((b.contact && b.contact.number) || b.telefone || b.phone || '').replace(/\\D/g, '');\nreturn [{ json: { id_curto: m[1].toLowerCase(), telefone, lead_em: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "2690696a-7659-417f-a3a2-1c54f4a31b68",
+      "name": "Gravar telefone no clique",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        520,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3HxLTtbOps3mWweq",
+          "cachedResultName": "ouro_bridge_cliques"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id_curto",
+              "condition": "eq",
+              "keyValue": "={{ $json.id_curto }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $json.telefone }}",
+            "lead_em": "={{ $json.lead_em }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_em",
+              "displayName": "lead_em",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "1a mensagem do lead (Leona)": {
+      "main": [
+        [
+          {
+            "node": "Extrair ID e telefone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair ID e telefone": {
+      "main": [
+        [
+          {
+            "node": "Gravar telefone no clique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  }
+}
