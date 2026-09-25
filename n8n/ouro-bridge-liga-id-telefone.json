@@ -28,7 +28,7 @@
         0
       ],
       "parameters": {
-        "jsCode": "// Lê a 1ª mensagem do lead (enviada pela Leona) e extrai o [ID:xxxx] da bridge page.\n// Sem [ID:...] na mensagem (ex.: lead do Meta) -> não faz nada.\nconst b = $input.first().json.body || {};\nconst msg = String(b.mensagem ?? b.message ?? b.text ?? '');\nconst m = msg.match(/\\[ID:([a-z0-9]{6,16})\\]/i);\nif (!m) return [];\nconst telefone = String((b.contact && b.contact.number) || b.telefone || b.phone || '').replace(/\\D/g, '');\nreturn [{ json: { id_curto: m[1].toLowerCase(), telefone, lead_em: new Date().toISOString() } }];"
+        "jsCode": "// Lê a 1ª mensagem do lead (enviada pela Leona) e extrai o código da bridge page (\"código de atendimento: xxxx\" ou o antigo [ID:xxxx]).\n// Sem código na mensagem (ex.: lead do Meta) -> não faz nada.\nconst b = $input.first().json.body || {};\nconst msg = String(b.mensagem ?? b.message ?? b.text ?? '');\nconst m = msg.match(/(?:\\[ID:|c[oó]digo de atendimento:?\\s*)([a-z0-9]{6,16})/i);\nif (!m) return [];\nconst telefone = String((b.contact && b.contact.number) || b.telefone || b.phone || '').replace(/\\D/g, '');\nreturn [{ json: { id_curto: m[1].toLowerCase(), telefone, lead_em: new Date().toISOString() } }];"
       }
     },
     {

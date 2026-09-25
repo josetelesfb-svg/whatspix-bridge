@@ -146,7 +146,7 @@
                    Math.random().toString(36).slice(2, 4).padEnd(2, "0");
 
     // 4) Link do WhatsApp -> href real do botão (sem redirect por JS)
-    var mensagem = MENSAGEM_BASE + " [ID:" + id_curto + "]";
+    var mensagem = MENSAGEM_BASE + " Meu código de atendimento: " + id_curto;
     document.getElementById("cta").href =
       "https://wa.me/" + WHATSAPP_NUMERO + "?text=" + encodeURIComponent(mensagem);
 
