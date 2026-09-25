@@ -1,9 +1,9 @@
 {
-  "name": "Ouro Bridge - Captura de Clique (TikTok)",
+  "name": "Ouro Bridge - Toque no Botão WhatsApp (TikTok)",
   "nodes": [
     {
-      "id": "106008d9-b7f5-5363-ad9a-d1afea9bca11",
-      "name": "Clique na bridge page",
+      "id": "2ea8a423-7c31-544d-b7a1-881c2fd24c90",
+      "name": "Toque no botão",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
@@ -12,15 +12,15 @@
       ],
       "parameters": {
         "httpMethod": "POST",
-        "path": "ouro-bridge-clique",
+        "path": "ouro-bridge-cta",
         "responseMode": "onReceived",
         "options": {}
       },
-      "webhookId": "f7834abc-6f55-57cf-bf89-d3475ab81d03"
+      "webhookId": "891a27b3-0685-540e-b6a6-56db06bed663"
     },
     {
-      "id": "14e65677-0df8-5407-a27c-fc5c85e6171b",
-      "name": "Salvar clique",
+      "id": "5c26782f-279f-59eb-bcf9-b66367d3a2f8",
+      "name": "Marcar hora do toque",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
@@ -53,9 +53,7 @@
             "ttclid": "={{ ($json.body.ttclid || '').toString().slice(0, 500) }}",
             "ad": "={{ ($json.body.ad || '').toString().slice(0, 100) }}",
             "produto": "={{ ($json.body.produto || '').toString().slice(0, 100) }}",
-            "timestamp_clique": "={{ $json.body.timestamp || new Date().toISOString() }}",
-            "user_agent": "={{ ($json.headers['user-agent'] || '').toString().slice(0, 500) }}",
-            "ip": "={{ (() => { const ip = (($json.headers['x-real-ip'] || $json.headers['x-forwarded-for'] || '') + '').split(',')[0].trim(); return /^(10\\.|127\\.|192\\.168\\.|172\\.(1[6-9]|2\\d|3[01])\\.|::1|fc|fd|fe80)/i.test(ip) ? '' : ip; })() }}"
+            "whatsapp_em": "={{ new Date().toISOString() }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -96,26 +94,8 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "timestamp_clique",
-              "displayName": "timestamp_clique",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "user_agent",
-              "displayName": "user_agent",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "ip",
-              "displayName": "ip",
+              "id": "whatsapp_em",
+              "displayName": "whatsapp_em",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -131,11 +111,11 @@
     }
   ],
   "connections": {
-    "Clique na bridge page": {
+    "Toque no botão": {
       "main": [
         [
           {
-            "node": "Salvar clique",
+            "node": "Marcar hora do toque",
             "type": "main",
             "index": 0
           }

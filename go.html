@@ -130,6 +130,7 @@
 <script>
   /* ================== CONFIGURAÇÃO (EDITAR AQUI) ================== */
   const WEBHOOK_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-clique";
+  const WEBHOOK_CTA_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-cta"; // toque no botão
   const WHATSAPP_NUMERO = "5579991068519"; // formato: código do país + DDD + número, só dígitos, sem + nem espaços (ex: 5579991066805)
   const MENSAGEM_BASE = "Olá! Vim pelo anúncio e quero saber mais.";
   /* ================================================================ */
@@ -147,8 +148,21 @@
 
     // 4) Link do WhatsApp -> href real do botão (sem redirect por JS)
     var mensagem = MENSAGEM_BASE + " Meu código de atendimento: " + id_curto;
-    document.getElementById("cta").href =
-      "https://wa.me/" + WHATSAPP_NUMERO + "?text=" + encodeURIComponent(mensagem);
+    var cta = document.getElementById("cta");
+    cta.href = "https://wa.me/" + WHATSAPP_NUMERO + "?text=" + encodeURIComponent(mensagem);
+
+    // Toque no botão: avisa o n8n (hora do toque = como ligamos o clique ao telefone
+    // que a Leona manda segundos depois). Não bloqueia a abertura do WhatsApp.
+    cta.addEventListener("click", function () {
+      if (WEBHOOK_CTA_URL.indexOf("http") !== 0) return;
+      var dados = new URLSearchParams({ id_curto: id_curto, ttclid: ttclid, ad: ad, produto: produto });
+      try {
+        if (!(navigator.sendBeacon && navigator.sendBeacon(WEBHOOK_CTA_URL, dados))) {
+          fetch(WEBHOOK_CTA_URL, { method: "POST", mode: "no-cors", keepalive: true, body: dados })
+            .catch(function () {});
+        }
+      } catch (e) { /* silencioso */ }
+    });
 
     // 3) Envio ao webhook: fire-and-forget, não bloqueia nada, falha em silêncio
     if (WEBHOOK_URL.indexOf("http") !== 0) return; // placeholder ainda não trocado

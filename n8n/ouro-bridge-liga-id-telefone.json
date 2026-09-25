@@ -2,7 +2,7 @@
   "name": "Ouro Bridge - Liga ID ao Telefone (TikTok)",
   "nodes": [
     {
-      "id": "0d91797a-56cf-4c9b-ab4d-6ebdaa4bafda",
+      "id": "822bc95e-9f25-5e4d-9586-8dd7b0f35984",
       "name": "1a mensagem do lead (Leona)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
@@ -10,17 +10,17 @@
         0,
         0
       ],
-      "webhookId": "5a0de3f3-1425-4ec2-b747-826b4811ea01",
       "parameters": {
         "httpMethod": "POST",
         "path": "ouro-bridge-lead",
         "responseMode": "onReceived",
         "options": {}
-      }
+      },
+      "webhookId": "294bb0a2-73e7-5f07-85bc-1fb61ee1316a"
     },
     {
-      "id": "3326811b-5266-41d6-bdf1-484a6da9975c",
-      "name": "Extrair ID e telefone",
+      "id": "c3218efe-661f-5173-affd-13529b64a58d",
+      "name": "Preparar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -28,16 +28,65 @@
         0
       ],
       "parameters": {
-        "jsCode": "// Lê a 1ª mensagem do lead (enviada pela Leona) e extrai o código da bridge page (\"código de atendimento: xxxx\" ou o antigo [ID:xxxx]).\n// Sem código na mensagem (ex.: lead do Meta) -> não faz nada.\nconst b = $input.first().json.body || {};\nconst msg = String(b.mensagem ?? b.message ?? b.text ?? '');\nconst m = msg.match(/(?:\\[ID:|c[oó]digo de atendimento:?\\s*)([a-z0-9]{6,16})/i);\nif (!m) return [];\nconst telefone = String((b.contact && b.contact.number) || b.telefone || b.phone || '').replace(/\\D/g, '');\nreturn [{ json: { id_curto: m[1].toLowerCase(), telefone, lead_em: new Date().toISOString() } }];"
+        "jsCode": "// Chamado pela integração no início do fluxo da Leona. Precisa de \"telefone\" ({phone_number}).\nconst b = $input.first().json.body || {};\nconst telefone = String(b.telefone ?? (b.contact && b.contact.number) ?? '').replace(/\\D/g, '');\nif (!telefone) return [];\nconst agora = Date.now();\nconst JANELA_MIN = 10; // procura toques no botão nos últimos X minutos\nconst m = String(b.mensagem ?? '').match(/(?:\\[ID:|c[oó]digo de atendimento:?\\s*)([a-z0-9]{6,16})/i);\nreturn [{ json: {\n  telefone,\n  codigo: m ? m[1].toLowerCase() : '',\n  agora: new Date(agora).toISOString(),\n  desde: new Date(agora - JANELA_MIN * 60 * 1000).toISOString(),\n} }];"
       }
     },
     {
-      "id": "2690696a-7659-417f-a3a2-1c54f4a31b68",
-      "name": "Gravar telefone no clique",
+      "id": "3a6c5956-11ff-55dd-988d-3ec7991dc8fa",
+      "name": "Toques recentes sem dono",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
         520,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3HxLTtbOps3mWweq",
+          "cachedResultName": "ouro_bridge_cliques"
+        },
+        "returnAll": true,
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "telefone",
+              "condition": "isEmpty"
+            },
+            {
+              "keyName": "whatsapp_em",
+              "condition": "gte",
+              "keyValue": "={{ $json.desde }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b9e8725f-f7a2-5d79-b513-305cef82396e",
+      "name": "Escolher clique",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Entre os toques no botão sem telefone na janela, escolhe o código (se veio) ou o mais recente.\nconst p = $('Preparar').first().json;\nconst rows = $input.all().map(i => i.json).filter(r => r.id_curto && r.whatsapp_em && r.whatsapp_em <= p.agora);\nif (!rows.length) return [];\nlet escolhido = p.codigo ? rows.find(r => r.id_curto === p.codigo) : null;\nlet via = 'codigo';\nif (!escolhido) {\n  rows.sort((a, b) => (a.whatsapp_em < b.whatsapp_em ? 1 : -1));\n  escolhido = rows[0];\n  via = rows.length === 1 ? 'horario' : 'horario_' + rows.length + '_candidatos';\n}\nreturn [{ json: { id_curto: escolhido.id_curto, telefone: p.telefone, lead_em: p.agora, casado_por: via } }];"
+      }
+    },
+    {
+      "id": "79d60913-fb23-5917-a567-1bea8d32ad5d",
+      "name": "Gravar telefone no clique",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
         0
       ],
       "parameters": {
@@ -63,7 +112,8 @@
           "mappingMode": "defineBelow",
           "value": {
             "telefone": "={{ $json.telefone }}",
-            "lead_em": "={{ $json.lead_em }}"
+            "lead_em": "={{ $json.lead_em }}",
+            "casado_por": "={{ $json.casado_por }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -84,6 +134,15 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "casado_por",
+              "displayName": "casado_por",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
             }
           ],
           "attemptToConvertTypes": false,
@@ -98,14 +157,36 @@
       "main": [
         [
           {
-            "node": "Extrair ID e telefone",
+            "node": "Preparar",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Extrair ID e telefone": {
+    "Preparar": {
+      "main": [
+        [
+          {
+            "node": "Toques recentes sem dono",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Toques recentes sem dono": {
+      "main": [
+        [
+          {
+            "node": "Escolher clique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escolher clique": {
       "main": [
         [
           {
