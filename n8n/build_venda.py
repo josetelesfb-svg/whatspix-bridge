@@ -108,7 +108,7 @@ def build_copia():
     link(conn, "Code in JavaScript", "TikTok: buscar clique")
     for a, b in zip([t["name"] for t in tiktok], [t["name"] for t in tiktok][1:]): link(conn, a, b)
     return {"name": "Leona - Valida Comprovante - Rafael NFE - TikTok", "nodes": wf["nodes"],
-            "connections": conn, "settings": {k: v for k, v in orig["settings"].items() if k in ("executionOrder","binaryMode")}}
+            "connections": conn, "settings": {k: v for k, v in orig["settings"].items() if k in ("executionOrder",)}}
 
 def build_teste():
     # Fluxo de TESTE isolado: simula Webhook + resposta do Claude, e roda só o ramo TikTok.
