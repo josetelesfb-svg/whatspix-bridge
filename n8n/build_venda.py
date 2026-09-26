@@ -12,6 +12,7 @@ CLIQUES = {"__rl": True, "mode": "id", "value": "3HxLTtbOps3mWweq", "cachedResul
 VENDAS = {"__rl": True, "mode": "id", "value": "m97cJYWpMzidJT1e", "cachedResultName": "ouro_bridge_vendas"}
 CRED = {"httpHeaderAuth": {"id": "RuEJBMyXZeLbum8u", "name": "TikTok Events API - jota-digital-tiktok"}}
 TEST_EVENT_CODE = sys.argv[1] if len(sys.argv) > 1 else ""
+TT_TOKEN_PADRAO = open(os.path.expanduser("~/.config/ouro-bridge/tiktok_token")).read().strip()
 
 # função sha256 pura (a mesma do fluxo original, que não usa require)
 code_orig = next(n for n in orig["nodes"] if n["name"] == "Code in JavaScript")["parameters"]["jsCode"]
@@ -21,8 +22,11 @@ montar = sha + r"""
 
 // ===== Monta o evento CompletePayment pro TikTok Events API =====
 const TEST_EVENT_CODE = '__TEST__'; // vazio = produção; com código = aparece só em "Eventos de teste"
-const PIXEL = '__PIXEL__';
-const primeiro = $input.first() && $input.first().json;
+const hookQ = $('Webhook').first().json.query || {};
+const PIXEL = hookQ.tt_pixel || '__PIXEL__';           // &tt_pixel= na URL da integração (opcional)
+const TOKEN = hookQ.tt_token || '__TOKEN__';           // &tt_token= na URL da integração (opcional)
+let primeiro = null;
+try { primeiro = $('TikTok: buscar clique').first().json; } catch (e) {}
 const clique = primeiro && primeiro.id_curto ? primeiro : null; // linha da tabela de cliques (ou nada)
 const hook = $('Webhook').first().json;
 const tel = String((hook.body.contact && hook.body.contact.number) || '').replace(/\D/g, '');
@@ -58,14 +62,14 @@ const body = {
 };
 if (TEST_EVENT_CODE) body.test_event_code = TEST_EVENT_CODE;
 
-return [{ json: { body, log: {
+return [{ json: { body, token: TOKEN, log: {
   venda_em: new Date().toISOString(), telefone: tel,
   id_curto: clique ? clique.id_curto : '', ttclid: clique ? (clique.ttclid || '') : '',
   ad: clique ? (clique.ad || '') : '', produto, valor: String(valor),
   casado_por: clique ? (clique.casado_por || '') : 'sem_clique',
   event_id: eventId, teste: TEST_EVENT_CODE ? 'sim' : 'nao',
 } } }];"""
-montar = montar.replace("__TEST__", TEST_EVENT_CODE).replace("__PIXEL__", PIXEL)
+montar = montar.replace("__TEST__", TEST_EVENT_CODE).replace("__PIXEL__", PIXEL).replace("__TOKEN__", TT_TOKEN_PADRAO)
 
 def schema(cols): return [{"id":c,"displayName":c,"required":False,"defaultMatch":False,"display":True,"type":"string","canBeUsedToMatch":True} for c in cols]
 def nid(n): return str(uuid.uuid5(uuid.NAMESPACE_URL, "tiktok-venda/" + n))
@@ -80,9 +84,9 @@ tiktok = [
  {"id":nid("montar"),"name":"TikTok: montar evento","type":"n8n-nodes-base.code","typeVersion":2,"position":[220,0],
   "onError":"continueRegularOutput","parameters":{"jsCode":montar}},
  {"id":nid("enviar"),"name":"TikTok: enviar CompletePayment","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[440,0],
-  "onError":"continueRegularOutput","credentials":CRED,
+  "onError":"continueRegularOutput",
   "parameters":{"method":"POST","url":"https://business-api.tiktok.com/open_api/v1.3/event/track/",
-    "authentication":"genericCredentialType","genericAuthType":"httpHeaderAuth",
+    "sendHeaders":True,"headerParameters":{"parameters":[{"name":"Access-Token","value":"={{ $json.token }}"}]},
     "sendBody":True,"specifyBody":"json","jsonBody":"={{ JSON.stringify($json.body) }}","options":{}}},
  {"id":nid("registrar"),"name":"TikTok: registrar venda","type":"n8n-nodes-base.dataTable","typeVersion":1.1,"position":[660,0],
   "onError":"continueRegularOutput",
@@ -111,8 +115,24 @@ def build_copia():
     cx, cy = next(n for n in wf["nodes"] if n["name"] == "Code in JavaScript")["position"]
     for i, t in enumerate(copy.deepcopy(tiktok)):
         t["position"] = [cx + 220 * (i + 1), cy + 260]; wf["nodes"].append(t)
-    link(conn, "Code in JavaScript", "TikTok: buscar clique")
-    for a, b in zip([t["name"] for t in tiktok], [t["name"] for t in tiktok][1:]): link(conn, a, b)
+    # If (comprovante válido) -> TikTok: buscar clique -> If1 (resto igual ao original)
+    main_if = conn["If"]["main"]
+    assert [c["node"] for c in main_if[0]] == ["If1"], main_if
+    main_if[0] = [{"node":"TikTok: buscar clique","type":"main","index":0}]
+    link(conn, "TikTok: buscar clique", "If1")
+    link(conn, "Code in JavaScript", "TikTok: montar evento")
+    nomes = [t["name"] for t in tiktok][1:]
+    for a, b in zip(nomes, nomes[1:]): link(conn, a, b)
+    # Utmify: trackingParameters com as UTMs do anúncio guardadas no clique
+    utm = next(n for n in wf["nodes"] if n["name"] == "HTTP Request1")
+    body = utm["parameters"]["jsonBody"]
+    i = body.index('"trackingParameters"'); j = body.index("\n  }", i) + len("\n  }")  # fecha o objeto (tem {{ }} dentro)
+    utm["parameters"]["jsonBody"] = body[:i] + (
+      '"trackingParameters": {{ JSON.stringify((() => { let c = {}; '
+      "try { c = $('TikTok: buscar clique').first().json || {}; } catch (e) {} "
+      "const v = x => (x ? String(x) : null); "
+      "return { src: null, sck: null, utm_source: v(c.utm_source) || 'tiktok', utm_campaign: v(c.utm_campaign), "
+      "utm_medium: v(c.utm_medium), utm_content: v(c.utm_content), utm_term: v(c.utm_term) }; })()) }}") + body[j:]
     return {"name": "Leona - Valida Comprovante - Rafael NFE - TikTok", "nodes": wf["nodes"],
             "connections": conn, "settings": {k: v for k, v in orig["settings"].items() if k in ("executionOrder",)}}
 
@@ -127,7 +147,8 @@ def build_teste():
     ]
     conn = {}
     link(conn, "Webhook", "Message a model"); link(conn, "Message a model", "TikTok: buscar clique")
-    for a, b in zip([t["name"] for t in tiktok], [t["name"] for t in tiktok][1:]): link(conn, a, b)
+    nomes = [t["name"] for t in tiktok]
+    for a, b in zip(nomes, nomes[1:]): link(conn, a, b)
     return {"name": "Ouro Bridge - TESTE venda TikTok (apagar depois)", "nodes": fake + copy.deepcopy(tiktok),
             "connections": conn, "settings": {"executionOrder": "v1"}}
 
