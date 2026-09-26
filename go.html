@@ -141,6 +141,10 @@
     var ttclid  = params.get("ttclid")  || "";
     var ad      = params.get("ad")      || "";
     var produto = params.get("produto") || "";
+    // UTMs do anúncio (modelo da Utmify) — repassadas pra Utmify na hora da venda
+    var UTMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+    var utms = {};
+    UTMS.forEach(function (k) { utms[k] = (params.get(k) || "").slice(0, 300); });
 
     // 2) ID curto: timestamp em base36 (8 chars) + 2 chars aleatórios = 10 chars [a-z0-9]
     var id_curto = Date.now().toString(36) +
@@ -166,13 +170,13 @@
 
     // 3) Envio ao webhook: fire-and-forget, não bloqueia nada, falha em silêncio
     if (WEBHOOK_URL.indexOf("http") !== 0) return; // placeholder ainda não trocado
-    var payload = new URLSearchParams({
+    var payload = new URLSearchParams(Object.assign({
       id_curto: id_curto,
       ttclid: ttclid,
       ad: ad,
       produto: produto,
       timestamp: new Date().toISOString()
-    });
+    }, utms));
     try {
       // Formato formulário (application/x-www-form-urlencoded) = "simple request":
       // sem preflight CORS, então o keepalive funciona em todos os navegadores

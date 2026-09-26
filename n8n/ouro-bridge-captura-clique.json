@@ -55,7 +55,12 @@
             "produto": "={{ ($json.body.produto || '').toString().slice(0, 100) }}",
             "timestamp_clique": "={{ $json.body.timestamp || new Date().toISOString() }}",
             "user_agent": "={{ ($json.headers['user-agent'] || '').toString().slice(0, 500) }}",
-            "ip": "={{ (() => { const ip = (($json.headers['x-real-ip'] || $json.headers['x-forwarded-for'] || '') + '').split(',')[0].trim(); return /^(10\\.|127\\.|192\\.168\\.|172\\.(1[6-9]|2\\d|3[01])\\.|::1|fc|fd|fe80)/i.test(ip) ? '' : ip; })() }}"
+            "ip": "={{ (() => { const ip = (($json.headers['x-real-ip'] || $json.headers['x-forwarded-for'] || '') + '').split(',')[0].trim(); return /^(10\\.|127\\.|192\\.168\\.|172\\.(1[6-9]|2\\d|3[01])\\.|::1|fc|fd|fe80)/i.test(ip) ? '' : ip; })() }}",
+            "utm_source": "={{ ($json.body.utm_source || '').toString().slice(0, 300) }}",
+            "utm_medium": "={{ ($json.body.utm_medium || '').toString().slice(0, 300) }}",
+            "utm_campaign": "={{ ($json.body.utm_campaign || '').toString().slice(0, 300) }}",
+            "utm_content": "={{ ($json.body.utm_content || '').toString().slice(0, 300) }}",
+            "utm_term": "={{ ($json.body.utm_term || '').toString().slice(0, 300) }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -116,6 +121,51 @@
             {
               "id": "ip",
               "displayName": "ip",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "utm_source",
+              "displayName": "utm_source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "utm_medium",
+              "displayName": "utm_medium",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "utm_campaign",
+              "displayName": "utm_campaign",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "utm_content",
+              "displayName": "utm_content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "utm_term",
+              "displayName": "utm_term",
               "required": false,
               "defaultMatch": false,
               "display": true,
