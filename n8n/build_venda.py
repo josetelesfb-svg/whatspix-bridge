@@ -2,7 +2,11 @@
 # porque o original contém tokens). Saída também fica fora do repo. Rodar: python3 n8n/build_venda.py
 import json, os, re, uuid, copy, sys
 PRIV = os.path.expanduser("~/.config/ouro-bridge/privado")
-orig = json.load(open(f"{PRIV}/rafael_nfe_original.json"))
+# Base = VERSÃO PUBLICADA do "Rafael NFE Teste" (é o que o chatbot de pães usa; o rascunho dele está com
+# a ligação Utmify -> Code desconectada, por isso NÃO usar os nodes/connections do rascunho).
+_base = json.loads(open(f"{PRIV}/rafael_nfe_teste.json").read(), strict=False)
+orig = {"name": _base["name"], "settings": _base["settings"],
+        "nodes": _base["activeVersion"]["nodes"], "connections": _base["activeVersion"]["connections"]}
 PIXEL = "DAJ8RVRC77U250DBPJ3G"
 CLIQUES = {"__rl": True, "mode": "id", "value": "3HxLTtbOps3mWweq", "cachedResultName": "ouro_bridge_cliques"}
 VENDAS = {"__rl": True, "mode": "id", "value": "m97cJYWpMzidJT1e", "cachedResultName": "ouro_bridge_vendas"}
@@ -25,7 +29,9 @@ const tel = String((hook.body.contact && hook.body.contact.number) || '').replac
 const ia = JSON.parse($('Message a model').first().json.content[0].text.replace(/```json|```/g, '').trim());
 const valor = Number(ia.valor) || 0;
 const produto = (clique && clique.produto) || (hook.query && hook.query.name) || 'ebook';
-const eventId = 'venda_' + tel + '_' + Date.now();
+let orderId = '';
+try { orderId = $('Edit Fields').first().json.orderId || ''; } catch (e) {}
+const eventId = orderId || ('venda_' + tel + '_' + Date.now()); // mesmo nº de pedido da Utmify
 
 const user = { phone: sha256('+' + tel), external_id: sha256(tel) };
 if (clique) {
