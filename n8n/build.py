@@ -1,5 +1,6 @@
 # Gera os JSONs dos workflows do Ouro Bridge (n8n 2.19.x). Rodar: python3 n8n/build.py
-import json, uuid
+import json, uuid, os, sys
+TT_TEST = os.environ.get("TT_TEST", "")  # código de "Eventos de teste" do TikTok; vazio = produção
 T={"__rl":True,"mode":"id","value":"3HxLTtbOps3mWweq","cachedResultName":"ouro_bridge_cliques"}
 def schema(cols): return [{"id":c,"displayName":c,"required":False,"defaultMatch":False,"display":True,"type":"string","canBeUsedToMatch":True} for c in cols]
 def mapping(vals): return {"mappingMode":"defineBelow","value":vals,"matchingColumns":[],"schema":schema(list(vals)),"attemptToConvertTypes":False,"convertFieldsToString":False}
@@ -63,6 +64,46 @@ if (!escolhido) {
   via = rows.length === 1 ? 'horario' : 'horario_' + rows.length + '_candidatos';
 }
 return [{ json: { id_curto: escolhido.id_curto, telefone: p.telefone, lead_em: p.agora, casado_por: via } }];"""
+# ===== Evento "Contato" pro TikTok quando o lead é ligado ao clique =====
+_priv = os.path.expanduser("~/.config/ouro-bridge/privado/rafael_nfe_teste.json")
+_code = json.loads(open(_priv).read(), strict=False)["activeVersion"]["nodes"]
+_sha = next(n for n in _code if n["name"] == "Code in JavaScript")["parameters"]["jsCode"]
+SHA = _sha[:_sha.index("const phone =")].strip()   # sha256 puro (sem require), mesmo do fluxo de vendas
+contato = SHA + r"""
+
+// Lead do WhatsApp ligado a um clique do anúncio -> evento Contact no TikTok (Events API).
+const TEST_EVENT_CODE = '__TT_TEST__'; // vazio = produção
+const PIXEL = 'DAJ8RVRC77U250DBPJ3G';
+const esc = $('Escolher clique').first().json;          // id_curto, telefone, casado_por
+const row = ($input.first() && $input.first().json) || {}; // linha atualizada (ttclid, ip, ua...)
+const tel = String(esc.telefone || '').replace(/\D/g, '');
+if (!tel) return [];
+const user = { phone: sha256('+' + tel), external_id: sha256(tel) };
+if (row.ttclid) user.ttclid = row.ttclid;
+if (row.ip) user.ip = row.ip;
+if (row.user_agent) user.user_agent = row.user_agent;
+const body = {
+  event_source: 'web',
+  event_source_id: PIXEL,
+  data: [{
+    event: 'Contact',
+    event_time: Math.floor(Date.now() / 1000),
+    event_id: 'lead_' + esc.id_curto,               // 1 Contato por clique (dedup no TikTok)
+    user,
+    properties: { content_type: 'product', contents: [{ content_id: row.produto || 'ebook', quantity: 1 }] },
+    page: { url: 'https://josetelesfb-svg.github.io/whatspix-bridge/go.html' },
+  }],
+};
+if (TEST_EVENT_CODE) body.test_event_code = TEST_EVENT_CODE;
+return [{ json: { body } }];""".replace("__TT_TEST__", TT_TEST)
+CRED={"httpHeaderAuth":{"id":"RuEJBMyXZeLbum8u","name":"TikTok Events API - jota-digital-tiktok"}}
+n_contato = node("TikTok: montar Contato","n8n-nodes-base.code",2,[1300,0],{"jsCode":contato},onError="continueRegularOutput")
+n_envia = node("TikTok: enviar Contato","n8n-nodes-base.httpRequest",4.2,[1560,0],
+  {"method":"POST","url":"https://business-api.tiktok.com/open_api/v1.3/event/track/",
+   "authentication":"genericCredentialType","genericAuthType":"httpHeaderAuth",
+   "sendBody":True,"specifyBody":"json","jsonBody":"={{ JSON.stringify($json.body) }}","options":{}},
+  onError="continueRegularOutput",credentials=CRED)
+
 wf2={"name":"Ouro Bridge - Liga ID ao Telefone (TikTok)",
  "nodes":[hook("1a mensagem do lead (Leona)","ouro-bridge-lead"),
    node("Preparar","n8n-nodes-base.code",2,[260,0],{"jsCode":prep}),
@@ -71,8 +112,9 @@ wf2={"name":"Ouro Bridge - Liga ID ao Telefone (TikTok)",
                              {"keyName":"whatsapp_em","condition":"gte","keyValue":s("$json.desde")}]}),
    node("Escolher clique","n8n-nodes-base.code",2,[780,0],{"jsCode":pick}),
    dt("Gravar telefone no clique",[1040,0],"update",**by_id(s("$json.id_curto")),columns=mapping({
-     "telefone":s("$json.telefone"),"lead_em":s("$json.lead_em"),"casado_por":s("$json.casado_por")}))],
- "connections":chain("1a mensagem do lead (Leona)","Preparar","Clique pelo código ou toques recentes","Escolher clique","Gravar telefone no clique"),
+     "telefone":s("$json.telefone"),"lead_em":s("$json.lead_em"),"casado_por":s("$json.casado_por")})),
+   n_contato, n_envia],
+ "connections":chain("1a mensagem do lead (Leona)","Preparar","Clique pelo código ou toques recentes","Escolher clique","Gravar telefone no clique","TikTok: montar Contato","TikTok: enviar Contato"),
  "settings":{"executionOrder":"v1","saveDataSuccessExecution":"all","saveDataErrorExecution":"all"}}
 
 for f,w in [("ouro-bridge-captura-clique",wf1),("ouro-bridge-toque-botao",wf3),("ouro-bridge-liga-id-telefone",wf2)]:
