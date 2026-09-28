@@ -23,6 +23,7 @@ wf1={"name":"Ouro Bridge - Captura de Clique (TikTok)",
      "id_curto":ID,"ttclid":txt("ttclid",500),"ad":txt("ad",100),"produto":txt("produto",100),
      "timestamp_clique":s(f"{B}.timestamp || new Date().toISOString()"),
      "user_agent":s("($json.headers['user-agent'] || '').toString().slice(0, 500)"),"ip":s(IP),
+     "pagina":txt("pagina",20),
      **{u:txt(u,300) for u in ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"]}}))],
  "connections":chain("Clique na bridge page","Salvar clique"),
  "settings":{"executionOrder":"v1","saveDataSuccessExecution":"none","saveDataErrorExecution":"all"}}

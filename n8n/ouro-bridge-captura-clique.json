@@ -56,6 +56,7 @@
             "timestamp_clique": "={{ $json.body.timestamp || new Date().toISOString() }}",
             "user_agent": "={{ ($json.headers['user-agent'] || '').toString().slice(0, 500) }}",
             "ip": "={{ (() => { const ip = (($json.headers['x-real-ip'] || $json.headers['x-forwarded-for'] || '') + '').split(',')[0].trim(); return /^(10\\.|127\\.|192\\.168\\.|172\\.(1[6-9]|2\\d|3[01])\\.|::1|fc|fd|fe80)/i.test(ip) ? '' : ip; })() }}",
+            "pagina": "={{ ($json.body.pagina || '').toString().slice(0, 20) }}",
             "utm_source": "={{ ($json.body.utm_source || '').toString().slice(0, 300) }}",
             "utm_medium": "={{ ($json.body.utm_medium || '').toString().slice(0, 300) }}",
             "utm_campaign": "={{ ($json.body.utm_campaign || '').toString().slice(0, 300) }}",
@@ -121,6 +122,15 @@
             {
               "id": "ip",
               "displayName": "ip",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pagina",
+              "displayName": "pagina",
               "required": false,
               "defaultMatch": false,
               "display": true,
