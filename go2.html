@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Pães Saudáveis | Receitas Sem Culpa</title>
-<!-- quando a foto do vídeo chegar: <link rel="preload" as="image" href="img/hero.jpg"> -->
+<link rel="preload" as="image" href="img/hero.jpg">
 <style>
   :root {
     --bg: #f7f1e6; --text: #3a2f25; --muted: #6e5a44; --brand: #2f4a2a;
@@ -33,18 +33,19 @@
   .faixa { background: var(--brand); color: #f7f1e6; text-align: center; font-size: .82rem; padding: 8px 12px; }
 
   /* 2. hero */
-  .hero-img { position: relative; max-width: 480px; margin: 0 auto; aspect-ratio: 4 / 3; overflow: hidden; }
-  .hero-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero-img { position: relative; max-width: 480px; margin: 0 auto; aspect-ratio: 1 / 1; max-height: 46vh; overflow: hidden; }
+  .hero-img img { width: 100%; height: 100%; object-fit: cover; object-position: 30% 50%; display: block; }
   .hero-img .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     background: #eadcc4; color: #8a7358; font-size: .95rem; text-align: center; padding: 20px; }
-  .hero-img::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 38%;
+  .hero-img::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 16%;
     background: linear-gradient(180deg, rgba(247,241,230,0), var(--bg)); }
-  .hero { margin-top: -34px; position: relative; text-align: center; }
+  .hero { margin-top: -14px; position: relative; text-align: center; }
   .selo { display: flex; align-items: center; gap: 10px; justify-content: center; font-size: .85rem; font-weight: 700; color: var(--muted); }
   .selo::before, .selo::after { content: ""; flex: 1; max-width: 60px; border-top: 2px dotted #c9b28c; }
   h1 { font-family: Georgia, "Times New Roman", serif; color: var(--brand); font-size: 2.15rem; line-height: 1.08; margin: 8px 0 10px; }
   .sub { color: var(--text); font-size: 1.02rem; margin-bottom: 18px; }
-  .micro { font-size: .8rem; color: var(--muted); margin-top: 10px; }
+  .micro { font-size: .8rem; color: var(--muted); margin-top: 8px; }
+  .garantia { margin-top: 12px; font-size: .95rem; color: var(--brand); background: rgba(255,255,255,.75); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
 
   /* botões */
   .cta { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
@@ -77,14 +78,24 @@
   .receitas img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 12px; display: block; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
   .receitas figcaption { font-size: .8rem; font-weight: 700; margin-top: 6px; color: var(--text); }
 
+  /* bônus */
+  .bonus { list-style: none; display: grid; gap: 8px; }
+  .bonus li { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.88); border: 1px solid var(--line);
+    border-radius: 12px; padding: 11px 14px; font-weight: 600; }
+  .bonus span { font-size: 1.2rem; }
+
   /* 6. como funciona */
   .passos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; font-size: .86rem; }
   .passos b { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin: 0 auto 6px;
     border-radius: 50%; background: var(--wa); color: #fff; font-size: 1rem; }
 
-  /* 7. depoimentos (RASCUNHO: substituir por prints reais) */
+  /* 7. depoimentos (clientes reais; nome abreviado por privacidade) */
   .depo { display: grid; gap: 10px; }
-  .depo div { background: #fff; border: 1px dashed #c9b28c; border-radius: 14px; padding: 18px; text-align: center; color: #a08a6e; font-size: .9rem; }
+  .depo div { display: flex; gap: 10px; align-items: flex-start; }
+  .depo i { flex: none; width: 38px; height: 38px; border-radius: 50%; background: #d9c7b0; color: #fff; font-style: normal;
+    font-weight: 700; font-size: .8rem; display: flex; align-items: center; justify-content: center; }
+  .depo p { background: #fff; border-radius: 4px 16px 16px 16px; padding: 10px 14px; font-size: .93rem; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .depo b { display: block; font-size: .82rem; color: var(--brand); margin-bottom: 2px; }
 
   /* 8. perguntas */
   details { border-bottom: 1px solid var(--line); padding: 14px 2px; }
@@ -106,11 +117,10 @@
 </style>
 </head>
 <body>
-  <div class="faixa">🎁 Hoje: bônus de receitas doces para quem pedir pelo WhatsApp</div>
+  <div class="faixa">🎁 Hoje: 4 bônus grátis para quem pedir pelo WhatsApp</div>
 
   <div class="hero-img">
-    <!-- FOTO DO VÍDEO: trocar o .ph por <img src="img/hero.jpg" width="960" height="720" alt="" fetchpriority="high"> -->
-    <div class="ph">Foto da mulher do vídeo<br>(aguardando o print)</div>
+    <img src="img/hero.jpg" width="780" height="780" alt="Pães caseiros saindo do forno" fetchpriority="high">
   </div>
 
   <div class="wrap">
@@ -119,7 +129,8 @@
       <h1>Pão caseiro, fofinho e sem culpa</h1>
       <p class="sub">50 receitas de pães sem glúten, sem açúcar refinado e sem lactose — do jeitinho que você viu no vídeo.</p>
       <a id="cta-topo" class="cta" href="#" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.31-1.96 1.36-.5.05-.97.23-3.27-.68-2.76-1.09-4.5-3.92-4.64-4.1-.13-.18-1.1-1.47-1.1-2.8 0-1.33.7-1.99.95-2.26.24-.27.53-.34.71-.34h.51c.16 0 .38-.06.6.46.23.54.77 1.87.84 2.01.07.13.11.29.02.47-.09.18-.13.29-.27.45-.13.16-.28.35-.4.47-.13.13-.27.28-.12.55.16.27.7 1.15 1.49 1.86 1.03.92 1.9 1.2 2.17 1.34.27.13.43.11.58-.07.16-.18.67-.78.85-1.05.18-.27.36-.22.6-.13.25.09 1.57.74 1.84.88.27.13.45.2.51.31.07.11.07.65-.17 1.32z"/></svg> Quero receber no WhatsApp</a>
-      <p class="micro">Resposta em 1 minuto • Pagamento via Pix • Receba na hora</p>
+      <p class="garantia">✅ Você recebe as receitas primeiro e <b>só paga depois!</b></p>
+      <p class="micro">Resposta em 1 minuto • Pagamento via Pix</p>
     </div>
 
     <section>
@@ -150,19 +161,29 @@
     </section>
 
     <section>
+      <h2>E ainda leva 4 bônus</h2>
+      <ul class="bonus">
+        <li><span>🎁</span>Café da manhã para diabéticos</li>
+        <li><span>🎁</span>Chás aliados para diabetes</li>
+        <li><span>🎁</span>Doces sem açúcar</li>
+        <li><span>🎁</span>Receitas low carb</li>
+      </ul>
+    </section>
+
+    <section>
       <h2>Como funciona</h2>
       <div class="passos">
         <p><b>1</b>Toque no botão verde</p>
         <p><b>2</b>Fale com a gente no WhatsApp</p>
-        <p><b>3</b>Receba o ebook na hora</p>
+        <p><b>3</b>Receba as receitas e pague depois</p>
       </div>
     </section>
 
     <section>
       <h2>Quem já recebeu</h2>
       <div class="depo">
-        <div>Depoimento real de cliente aqui (print)</div>
-        <div>Depoimento real de cliente aqui (print)</div>
+        <div><i>FP</i><p><b>Flávia P.</b>Recebi as receitas certinho, primeiro eles enviam e depois vc paga! Justo!</p></div>
+        <div><i>LR</i><p><b>Lígia R.</b>Suas receitas são maravilhosas, valeu muito a pena adquirir suas receitas, gratidão</p></div>
       </div>
     </section>
 
@@ -173,7 +194,7 @@
       <details><summary>Serve para quem tem intolerância a glúten ou lactose?</summary>
         <p>Todas as receitas são sem glúten e sem lactose. Em caso de doença celíaca ou alergia, confira sempre os rótulos dos ingredientes e siga a orientação do seu médico ou nutricionista.</p></details>
       <details><summary>Como é o pagamento?</summary>
-        <p>[CONFIRMAR] Você recebe o ebook primeiro e depois paga via Pix o valor que escolher.</p></details>
+        <p>Você recebe as receitas primeiro e só paga depois, via Pix.</p></details>
     </section>
 
     <section class="final">
