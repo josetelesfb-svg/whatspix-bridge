@@ -284,7 +284,7 @@
     // Engajamento (por que as pessoas saem): manda o estado ACUMULADO em poucos avisos
     // (aos 5 s, ao rolar 50% e ao sair/abrir o WhatsApp). Independente do botão; falha em silêncio.
     var ENGAJ_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-engaj";
-    var t0 = Date.now(), est = { ficou_5s: "", rolou_50: "", scroll_max: 0 }, ultimo = "";
+    var t0 = Date.now(), est = { ficou_5s: "", rolou_50: "", scroll_max: 0, video_tocou: "" }, ultimo = "";
     function medeRolagem() {
       var h = document.documentElement, max = h.scrollHeight - h.clientHeight;
       var pct = max > 0 ? Math.min(100, Math.round(100 * (window.scrollY || h.scrollTop) / max)) : 100;
@@ -294,9 +294,9 @@
     function engaj() {
       try {
         medeRolagem();
-        var d = { id_curto: id_curto, ficou_5s: est.ficou_5s, rolou_50: est.rolou_50,
+        var d = { id_curto: id_curto, ficou_5s: est.ficou_5s, rolou_50: est.rolou_50, video_tocou: est.video_tocou,
                   scroll_max: String(est.scroll_max), tempo_s: String(Math.round((Date.now() - t0) / 1000)) };
-        var chave = d.ficou_5s + d.rolou_50 + d.scroll_max + "|" + d.tempo_s;
+        var chave = d.ficou_5s + d.rolou_50 + d.video_tocou + d.scroll_max + "|" + d.tempo_s;
         if (chave === ultimo) return;
         ultimo = chave;
         var corpo = new URLSearchParams(d);
@@ -306,6 +306,9 @@
       } catch (e) { /* silencioso */ }
     }
     setTimeout(function () { est.ficou_5s = "1"; engaj(); }, 5000);
+    // vídeo do topo realmente rodando? (marca quando o tempo do vídeo avança)
+    var hv2 = document.querySelector(".hero-img video");
+    if (hv2) hv2.addEventListener("timeupdate", function () { if (!est.video_tocou && hv2.currentTime > 0.5) est.video_tocou = "1"; });
     window.addEventListener("scroll", function () {
       var tinha = est.rolou_50; medeRolagem(); if (!tinha && est.rolou_50) engaj();
     }, { passive: true });

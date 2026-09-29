@@ -124,7 +124,7 @@ wf4={"name":"Ouro Bridge - Engajamento na Página (TikTok)",
  "nodes":[hook("Engajamento na página","ouro-bridge-engaj"),
    dt("Atualizar engajamento",[260,0],"update",**by_id(ID),columns=mapping({
      "ficou_5s":txt("ficou_5s",1),"rolou_50":txt("rolou_50",1),
-     "scroll_max":txt("scroll_max",3),"tempo_s":txt("tempo_s",6)}))],
+     "scroll_max":txt("scroll_max",3),"tempo_s":txt("tempo_s",6),"video_tocou":txt("video_tocou",1)}))],
  "connections":chain("Engajamento na página","Atualizar engajamento"),
  "settings":{"executionOrder":"v1","saveDataSuccessExecution":"none","saveDataErrorExecution":"all"}}
 

@@ -52,7 +52,8 @@
             "ficou_5s": "={{ ($json.body.ficou_5s || '').toString().slice(0, 1) }}",
             "rolou_50": "={{ ($json.body.rolou_50 || '').toString().slice(0, 1) }}",
             "scroll_max": "={{ ($json.body.scroll_max || '').toString().slice(0, 3) }}",
-            "tempo_s": "={{ ($json.body.tempo_s || '').toString().slice(0, 6) }}"
+            "tempo_s": "={{ ($json.body.tempo_s || '').toString().slice(0, 6) }}",
+            "video_tocou": "={{ ($json.body.video_tocou || '').toString().slice(0, 1) }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -86,6 +87,15 @@
             {
               "id": "tempo_s",
               "displayName": "tempo_s",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "video_tocou",
+              "displayName": "video_tocou",
               "required": false,
               "defaultMatch": false,
               "display": true,
