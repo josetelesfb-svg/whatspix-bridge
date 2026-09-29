@@ -14,6 +14,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { background: var(--bg); }
   body {
+    position: relative;
     color: var(--text); background-color: var(--bg);
     background-image:
       radial-gradient(ellipse 120% 55% at 50% 0%, rgba(255,253,247,.9) 0%, rgba(255,253,247,0) 70%),
@@ -115,10 +116,12 @@
   #barra { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: #fff; box-shadow: 0 -6px 18px rgba(0,0,0,.1);
     padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); transform: translateY(110%); transition: transform .25s; }
   #barra.on { transform: none; }
+  #meio { position: absolute; top: 50%; left: 0; width: 1px; height: 1px; pointer-events: none; }
   #barra .cta { min-height: 52px; max-width: 448px; margin: 0 auto; }
 </style>
 </head>
 <body>
+  <div id="meio" aria-hidden="true"></div>
   <div class="faixa">🎁 Hoje: 4 bônus grátis para quem pedir pelo WhatsApp</div>
 
   <div class="hero-img">
@@ -267,8 +270,15 @@
     // (aos 5 s, ao rolar 50% e ao sair/abrir o WhatsApp). Independente do botão; falha em silêncio.
     var ENGAJ_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-engaj";
     var t0 = Date.now(), est = { ficou_5s: "", rolou_50: "", scroll_max: 0 }, ultimo = "";
+    function medeRolagem() {
+      var h = document.documentElement, max = h.scrollHeight - h.clientHeight;
+      var pct = max > 0 ? Math.min(100, Math.round(100 * (window.scrollY || h.scrollTop) / max)) : 100;
+      if (pct > est.scroll_max) est.scroll_max = pct;
+      if (!est.rolou_50 && pct >= 50) est.rolou_50 = "1";
+    }
     function engaj() {
       try {
+        medeRolagem();
         var d = { id_curto: id_curto, ficou_5s: est.ficou_5s, rolou_50: est.rolou_50,
                   scroll_max: String(est.scroll_max), tempo_s: String(Math.round((Date.now() - t0) / 1000)) };
         var chave = d.ficou_5s + d.rolou_50 + d.scroll_max + "|" + d.tempo_s;
@@ -282,11 +292,15 @@
     }
     setTimeout(function () { est.ficou_5s = "1"; engaj(); }, 5000);
     window.addEventListener("scroll", function () {
-      var h = document.documentElement, max = h.scrollHeight - h.clientHeight;
-      var pct = max > 0 ? Math.min(100, Math.round(100 * (window.scrollY || h.scrollTop) / max)) : 100;
-      if (pct > est.scroll_max) est.scroll_max = pct;
-      if (!est.rolou_50 && pct >= 50) { est.rolou_50 = "1"; engaj(); }
+      var tinha = est.rolou_50; medeRolagem(); if (!tinha && est.rolou_50) engaj();
     }, { passive: true });
+    // reforço: marcador invisível no meio da página (funciona mesmo se o evento de rolagem falhar)
+    var meio = document.getElementById("meio");
+    if (meio && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (e) {
+        if (e[0].isIntersecting && !est.rolou_50) { est.rolou_50 = "1"; if (est.scroll_max < 50) est.scroll_max = 50; engaj(); }
+      }).observe(meio);
+    }
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") engaj(); });
     window.addEventListener("pagehide", engaj);
 
