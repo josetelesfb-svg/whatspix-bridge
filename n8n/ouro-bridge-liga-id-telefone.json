@@ -264,7 +264,7 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "saveDataSuccessExecution": "all",
+    "saveDataSuccessExecution": "none",
     "saveDataErrorExecution": "all"
   }
 }

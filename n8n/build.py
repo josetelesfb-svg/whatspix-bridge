@@ -116,7 +116,7 @@ wf2={"name":"Ouro Bridge - Liga ID ao Telefone (TikTok)",
      "telefone":s("$json.telefone"),"lead_em":s("$json.lead_em"),"casado_por":s("$json.casado_por")})),
    n_contato, n_envia],
  "connections":chain("1a mensagem do lead (Leona)","Preparar","Clique pelo código ou toques recentes","Escolher clique","Gravar telefone no clique","TikTok: montar Contato","TikTok: enviar Contato"),
- "settings":{"executionOrder":"v1","saveDataSuccessExecution":"all","saveDataErrorExecution":"all"}}
+ "settings":{"executionOrder":"v1","saveDataSuccessExecution":"none","saveDataErrorExecution":"all"}}
 
 # 4) Engajamento: a página manda o estado ACUMULADO (ficou 5s, rolou 50%, rolagem máx, tempo)
 #    -> atualiza a linha do clique (update: se a linha não existir, não faz nada)
