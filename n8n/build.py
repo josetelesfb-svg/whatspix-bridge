@@ -118,6 +118,16 @@ wf2={"name":"Ouro Bridge - Liga ID ao Telefone (TikTok)",
  "connections":chain("1a mensagem do lead (Leona)","Preparar","Clique pelo código ou toques recentes","Escolher clique","Gravar telefone no clique","TikTok: montar Contato","TikTok: enviar Contato"),
  "settings":{"executionOrder":"v1","saveDataSuccessExecution":"all","saveDataErrorExecution":"all"}}
 
-for f,w in [("ouro-bridge-captura-clique",wf1),("ouro-bridge-toque-botao",wf3),("ouro-bridge-liga-id-telefone",wf2)]:
+# 4) Engajamento: a página manda o estado ACUMULADO (ficou 5s, rolou 50%, rolagem máx, tempo)
+#    -> atualiza a linha do clique (update: se a linha não existir, não faz nada)
+wf4={"name":"Ouro Bridge - Engajamento na Página (TikTok)",
+ "nodes":[hook("Engajamento na página","ouro-bridge-engaj"),
+   dt("Atualizar engajamento",[260,0],"update",**by_id(ID),columns=mapping({
+     "ficou_5s":txt("ficou_5s",1),"rolou_50":txt("rolou_50",1),
+     "scroll_max":txt("scroll_max",3),"tempo_s":txt("tempo_s",6)}))],
+ "connections":chain("Engajamento na página","Atualizar engajamento"),
+ "settings":{"executionOrder":"v1","saveDataSuccessExecution":"none","saveDataErrorExecution":"all"}}
+
+for f,w in [("ouro-bridge-captura-clique",wf1),("ouro-bridge-toque-botao",wf3),("ouro-bridge-liga-id-telefone",wf2),("ouro-bridge-engajamento",wf4)]:
     json.dump(w,open(f"n8n/{f}.json","w"),ensure_ascii=False,indent=2)
 print("ok")

@@ -1,0 +1,121 @@
+{
+  "name": "Ouro Bridge - Engajamento na Página (TikTok)",
+  "nodes": [
+    {
+      "id": "bcc81910-515e-5f1a-bf1a-a0dd259f1f1a",
+      "name": "Engajamento na página",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ouro-bridge-engaj",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "af1a9308-c825-587b-b4c4-aec24e6e4325"
+    },
+    {
+      "id": "fa0c16cf-14e5-5533-a242-4769572d6055",
+      "name": "Atualizar engajamento",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3HxLTtbOps3mWweq",
+          "cachedResultName": "ouro_bridge_cliques"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id_curto",
+              "condition": "eq",
+              "keyValue": "={{ ($json.body.id_curto || '').toString().toLowerCase().slice(0, 32) }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ficou_5s": "={{ ($json.body.ficou_5s || '').toString().slice(0, 1) }}",
+            "rolou_50": "={{ ($json.body.rolou_50 || '').toString().slice(0, 1) }}",
+            "scroll_max": "={{ ($json.body.scroll_max || '').toString().slice(0, 3) }}",
+            "tempo_s": "={{ ($json.body.tempo_s || '').toString().slice(0, 6) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ficou_5s",
+              "displayName": "ficou_5s",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rolou_50",
+              "displayName": "rolou_50",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "scroll_max",
+              "displayName": "scroll_max",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tempo_s",
+              "displayName": "tempo_s",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Engajamento na página": {
+      "main": [
+        [
+          {
+            "node": "Atualizar engajamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "all"
+  }
+}
