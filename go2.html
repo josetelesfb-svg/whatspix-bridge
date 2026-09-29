@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Pães Saudáveis | Receitas Sem Culpa</title>
-<link rel="preload" as="image" href="img/hero.jpg">
+<link rel="preload" as="image" href="img/hero-poster.jpg">
 <style>
   :root {
     --bg: #f7f1e6; --text: #3a2f25; --muted: #6e5a44; --brand: #2f4a2a;
@@ -35,7 +35,7 @@
 
   /* 2. hero */
   .hero-img { position: relative; max-width: 480px; margin: 0 auto; aspect-ratio: 1 / 1; max-height: 46vh; overflow: hidden; }
-  .hero-img img { width: 100%; height: 100%; object-fit: cover; object-position: 30% 50%; display: block; }
+  .hero-img video { width: 100%; height: 100%; object-fit: cover; display: block; background: #eadcc4 url("img/hero-poster.jpg") center / cover; }
   .hero-img .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     background: #eadcc4; color: #8a7358; font-size: .95rem; text-align: center; padding: 20px; }
   .hero-img::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 16%;
@@ -125,7 +125,11 @@
   <div class="faixa">🎁 Hoje: 4 bônus grátis para quem pedir pelo WhatsApp</div>
 
   <div class="hero-img">
-    <img src="img/hero.jpg" width="780" height="780" alt="Pães caseiros saindo do forno" fetchpriority="high">
+    <!-- trecho 0–8 s do vídeo do anúncio (sem som, loop). Enquanto carrega (ou se o celular bloquear), mostra o poster. -->
+    <video autoplay muted loop playsinline disablepictureinpicture preload="auto" poster="img/hero-poster.jpg"
+           width="480" height="480" aria-label="Pães caseiros saindo do forno">
+      <source src="img/hero.mp4" type="video/mp4">
+    </video>
   </div>
 
   <div class="wrap">
@@ -311,7 +315,7 @@
       ttclid: ttclid,
       ad: ad,
       produto: produto,
-      pagina: "go2.1",
+      pagina: "go2.2",
       timestamp: new Date().toISOString()
     }, utms));
     try {
