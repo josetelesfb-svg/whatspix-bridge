@@ -1,0 +1,111 @@
+{
+  "name": "Alerta - Chip desconectado (TESTE, apagar depois)",
+  "nodes": [
+    {
+      "id": "3157e902-e52e-5bbc-ae3a-20a61354fe0f",
+      "name": "E-mail simulado",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "6778ae85-36d3-5737-807d-4c74a7f9523c",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alerta-chip-teste",
+        "responseMode": "lastNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "e13629c8-eb96-561a-87a8-e1cc61f27086",
+      "name": "Formato do e-mail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map(i => ({ json: i.json.body }));"
+      }
+    },
+    {
+      "id": "97f49278-cf00-5112-b229-1faecbdec59c",
+      "name": "Montar alerta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Lê o e-mail da Leona e monta o texto do alerta. E-mails que não são de (des)conexão são ignorados.\nconst out = [];\nfor (const it of $input.all()) {\n  const e = it.json;\n  const assunto = String(e.subject || '');\n  const html = String(e.textHtml || '');\n  const texto = String(e.textPlain || html.replace(/<br\\s*\\/?>/gi, '\\n').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' '));\n  const t = (assunto + '\\n' + texto).replace(/[ \\t]+/g, ' ');\n  const caiu = /desconectad/i.test(t);\n  const voltou = !caiu && /reconectad|conectada novamente|voltou a (se )?conectar/i.test(t);\n  if (!caiu && !voltou) continue;\n  const ROT = '(?:Inst[âa]ncia|N[úu]mero|Desconectada em|Reconectada em|Conectada em|Acesse)';\n  const pega = (rot) => { const m = t.match(new RegExp('(?:^|\\\\n|\\\\s)' + rot + '\\\\s*:\\\\s*(.+?)(?=\\\\s*' + ROT + '\\\\s*:|\\\\s*Acesse|\\\\n|$)')); return m ? m[1].trim() : ''; };\n  const inst = pega('Inst[âa]ncia') || assunto.split(':').slice(1).join(':').trim();\n  const num = (pega('N[úu]mero').match(/\\d{10,13}/) || [''])[0];\n  const quando = pega('(?:Desconectada|Reconectada|Conectada) em');\n  const fmt = num.length === 13 ? `+${num.slice(0,2)} ${num.slice(2,4)} ${num.slice(4,9)}-${num.slice(9)}`\n            : num.length === 12 ? `+${num.slice(0,2)} ${num.slice(2,4)} ${num.slice(4,8)}-${num.slice(8)}` : num;\n  const texto_msg = caiu\n    ? `🚨 CHIP CAIU\\n\\n📌 ${inst}\\n📱 ${fmt || 'número não identificado'}\\n⏰ ${quando || new Date().toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'})}\\n\\nReconecte na Leona o quanto antes.`\n    : `✅ Chip reconectado\\n\\n📌 ${inst}\\n📱 ${fmt}\\n⏰ ${quando}`;\n  out.push({ json: { texto_msg, caiu, instancia: inst, numero: num } });\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "b4c5cadb-9bcb-510e-a304-b933560b0f4e",
+      "name": "Avisar no Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        600,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "jP81FyGHqycTwAt9",
+          "name": "Telegram - bot de alertas (JOTA)"
+        }
+      },
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "1478620951",
+        "text": "={{ $json.texto_msg }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      }
+    }
+  ],
+  "connections": {
+    "E-mail simulado": {
+      "main": [
+        [
+          {
+            "node": "Formato do e-mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formato do e-mail": {
+      "main": [
+        [
+          {
+            "node": "Montar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar alerta": {
+      "main": [
+        [
+          {
+            "node": "Avisar no Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
