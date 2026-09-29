@@ -270,6 +270,17 @@
       }).observe(principal);
     }
 
+    // Vídeo do topo: reforço de autoplay (alguns navegadores in-app só tocam com play() explícito)
+    var hv = document.querySelector(".hero-img video");
+    function tocar() { try { if (hv && hv.paused) { var p = hv.play(); if (p && p.catch) p.catch(function () {}); } } catch (e) {} }
+    if (hv) {
+      hv.muted = true;
+      tocar();
+      hv.addEventListener("canplay", tocar);
+      document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") tocar(); });
+      window.addEventListener("touchstart", tocar, { once: true, passive: true });
+    }
+
     // Engajamento (por que as pessoas saem): manda o estado ACUMULADO em poucos avisos
     // (aos 5 s, ao rolar 50% e ao sair/abrir o WhatsApp). Independente do botão; falha em silêncio.
     var ENGAJ_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-engaj";
