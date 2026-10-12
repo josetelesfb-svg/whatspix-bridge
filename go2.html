@@ -6,32 +6,17 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Pães Saudáveis | Receitas Sem Culpa</title>
 <script>
-  /* ===== TESTE A/B/C (abc1) =====
-     Cada versão: número de WhatsApp + mensagem pronta + se mostra preço. Versão sem número fica FORA do sorteio.
-     A = controle (igual à go2.2). Forçar uma versão pra testar: ?v=A / ?v=B / ?v=C (não fica salvo). */
-  window.VARIANTES = {
-    A: { numero: "5579991073078", msg: "Olá! Vim pelo anúncio e quero saber mais.", preco: false },
-    B: { numero: "5579991122305", msg: "Olá! Quero receber as 50 receitas de pães.", preco: true },
-    C: { numero: "5579991068519", msg: "Olá! Vim pelo anúncio e quero saber mais.", preco: false }
-  };
+  /* ===== VERSÃO FINAL (C venceu o A/B/C em 12/10/2026) =====
+     Todos os números rodam o MESMO fluxo na Leona (versão C). Cada visitante cai em um número, sorteado e fixo.
+     Para tirar um número (ex.: chip caiu), apague-o da lista. */
+  window.NUMEROS = ["5579991073078", "5579991122305", "5579991068519"];
+  window.MSG_WA = "Olá! Vim pelo anúncio e quero saber mais.";
   (function () {
-    var V = window.VARIANTES, ativas = Object.keys(V).filter(function (k) { return V[k].numero; });
-    var forcada = (new URLSearchParams(location.search).get("v") || "").toUpperCase();
-    var v = ativas.indexOf(forcada) >= 0 ? forcada : "";
-    if (!v) { try { v = localStorage.getItem("abc1_v") || ""; } catch (e) {} if (ativas.indexOf(v) < 0) v = ""; }
-    if (!v) { v = ativas[Math.floor(Math.random() * ativas.length)]; try { localStorage.setItem("abc1_v", v); } catch (e) {} }
-    window.__v = v;
-    document.documentElement.setAttribute("data-v", v);
-  })();
-  /* ===== TESTE DE VÍDEO DO TOPO (vid1), sorteio independente do A/B/C =====
-     1 = vídeo antigo (img/hero.mp4) | 2 = vídeo novo (img/hero2.mp4). Forçar: ?vid=1 / ?vid=2 (não fica salvo). */
-  (function () {
-    var ok = ["1", "2"], f = new URLSearchParams(location.search).get("vid") || "";
-    var x = ok.indexOf(f) >= 0 ? f : "";
-    if (!x) { try { x = localStorage.getItem("vid1") || ""; } catch (e) {} if (ok.indexOf(x) < 0) x = ""; }
-    if (!x) { x = ok[Math.floor(Math.random() * ok.length)]; try { localStorage.setItem("vid1", x); } catch (e) {} }
-    window.__vid = x;
-    window.__heroBase = x === "2" ? "img/hero2" : "img/hero";
+    var N = window.NUMEROS, n = "";
+    try { n = localStorage.getItem("c1_n") || ""; } catch (e) {}
+    if (N.indexOf(n) < 0) { n = N[Math.floor(Math.random() * N.length)]; try { localStorage.setItem("c1_n", n); } catch (e) {} }
+    window.__num = n;
+    window.__heroBase = "img/hero2"; // vídeo novo (empatou com o antigo; mais leve)
     var l = document.createElement("link"); l.rel = "preload"; l.as = "image"; l.href = window.__heroBase + "-poster.jpg";
     document.head.appendChild(l);
   })();
@@ -158,7 +143,7 @@
   <div class="faixa">🎁 Hoje: 4 bônus grátis para quem pedir pelo WhatsApp</div>
 
   <div class="hero-img">
-    <!-- vídeo sorteado (antigo = trecho 0–8 s do anúncio | novo = pão saindo do forno), sem som, loop. Enquanto carrega, mostra o poster. -->
+    <!-- vídeo do topo (pão saindo do forno), sem som, loop. Enquanto carrega, mostra o poster. -->
     <video autoplay muted loop playsinline disablepictureinpicture preload="auto"
            width="480" height="480" aria-label="Pães caseiros saindo do forno"></video>
     <script>
@@ -278,7 +263,7 @@
                    Math.random().toString(36).slice(2, 4).padEnd(2, "0");
 
     // 4) Link do WhatsApp -> href real do botão (sem redirect por JS)
-    var VV = (window.VARIANTES && window.VARIANTES[window.__v]) || { numero: WHATSAPP_NUMERO, msg: MENSAGEM_BASE };
+    var VV = { numero: window.__num || WHATSAPP_NUMERO, msg: window.MSG_WA || MENSAGEM_BASE };
     var mensagem = VV.msg + " Meu código de atendimento: " + id_curto;
     var link = "https://wa.me/" + VV.numero + "?text=" + encodeURIComponent(mensagem);
     var ctas = document.querySelectorAll(".cta");
@@ -368,7 +353,7 @@
       ttclid: ttclid,
       ad: ad,
       produto: produto,
-      pagina: "abc1-" + (window.__v || "A") + "-v" + (window.__vid || "1"),
+      pagina: "c1-" + (window.__num || WHATSAPP_NUMERO).slice(-4),
       timestamp: new Date().toISOString()
     }, utms));
     try {
