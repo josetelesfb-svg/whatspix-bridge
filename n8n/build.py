@@ -45,8 +45,10 @@ if (!telefone) return [];
 const agora = Date.now();
 const JANELA_MIN = 10; // procura toques no botão nos últimos X minutos
 const m = String(b.mensagem ?? '').match(/(?:\[ID:|c[oó]digo de atendimento:?\s*)([a-z0-9]{6,16})/i);
+const produto = String(b.produto || 'paes').toLowerCase().trim(); // cada fluxo da Leona manda o seu; sem campo = pães
 return [{ json: {
   telefone,
+  produto,
   codigo: m ? m[1].toLowerCase() : '',
   agora: new Date(agora).toISOString(),
   desde: new Date(agora - JANELA_MIN * 60 * 1000).toISOString(),
@@ -58,7 +60,8 @@ const todos = $input.all().map(i => i.json).filter(r => r.id_curto);
 let escolhido = p.codigo ? todos.find(r => r.id_curto === p.codigo) : null;
 let via = 'codigo';
 if (!escolhido) {
-  const rows = todos.filter(r => !r.telefone && r.whatsapp_em && r.whatsapp_em >= p.desde && r.whatsapp_em <= p.agora);
+  const rows = todos.filter(r => !r.telefone && r.whatsapp_em && r.whatsapp_em >= p.desde && r.whatsapp_em <= p.agora
+                             && (r.produto || 'paes') === p.produto); // não cruza leads de produtos diferentes
   if (!rows.length) return [];
   rows.sort((a, b) => (a.whatsapp_em < b.whatsapp_em ? 1 : -1));
   escolhido = rows[0];
@@ -74,9 +77,12 @@ contato = SHA + r"""
 
 // Lead do WhatsApp ligado a um clique do anúncio -> evento Contact no TikTok (Events API).
 const TEST_EVENT_CODE = '__TT_TEST__'; // vazio = produção
-const PIXEL = 'DAJ8RVRC77U250DBPJ3G';
+const PIXELS = { paes: 'DAJ8RVRC77U250DBPJ3G', diabeticos: 'DB3IS5RC77UEHJIKB2O0' }; // 1 pixel por produto
 const esc = $('Escolher clique').first().json;          // id_curto, telefone, casado_por
 const row = ($input.first() && $input.first().json) || {}; // linha atualizada (ttclid, ip, ua...)
+const prod = row.produto || 'paes';
+const PIXEL = PIXELS[prod];
+if (!PIXEL) return [];                                 // produto sem pixel cadastrado: não manda Contato
 const tel = String(esc.telefone || '').replace(/\D/g, '');
 if (!tel) return [];
 const user = { phone: sha256('+' + tel), external_id: sha256(tel) };
@@ -96,14 +102,19 @@ const body = {
   }],
 };
 if (TEST_EVENT_CODE) body.test_event_code = TEST_EVENT_CODE;
-return [{ json: { body } }];""".replace("__TT_TEST__", TT_TEST)
+return [{ json: { body, prod } }];""".replace("__TT_TEST__", TT_TEST)
 CRED={"httpHeaderAuth":{"id":"RuEJBMyXZeLbum8u","name":"TikTok Events API - jota-digital-tiktok"}}
+CRED_DM={"httpHeaderAuth":{"id":open(os.path.expanduser("~/.config/ouro-bridge/cred_tiktok_diabetes")).read().strip(),"name":"TikTok Events API - diabetes"}}
 n_contato = node("TikTok: montar Contato","n8n-nodes-base.code",2,[1300,0],{"jsCode":contato},onError="continueRegularOutput")
-n_envia = node("TikTok: enviar Contato","n8n-nodes-base.httpRequest",4.2,[1560,0],
+n_qual = node("Produto é diabetes?","n8n-nodes-base.if",2.2,[1560,0],{"conditions":{"options":{"caseSensitive":True,"leftValue":"","typeValidation":"strict","version":2},
+   "conditions":[{"id":"prod-dm","leftValue":"={{ $json.prod }}","rightValue":"diabeticos","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},"options":{}})
+def envia(nome,pos,cred): return node(nome,"n8n-nodes-base.httpRequest",4.2,pos,
   {"method":"POST","url":"https://business-api.tiktok.com/open_api/v1.3/event/track/",
    "authentication":"genericCredentialType","genericAuthType":"httpHeaderAuth",
    "sendBody":True,"specifyBody":"json","jsonBody":"={{ JSON.stringify($json.body) }}","options":{}},
-  onError="continueRegularOutput",credentials=CRED)
+  onError="continueRegularOutput",credentials=cred)
+n_envia = envia("TikTok: enviar Contato",[1820,100],CRED)            # pães (e futuros sem credencial própria caem fora antes)
+n_envia_dm = envia("TikTok: enviar Contato (diabetes)",[1820,-100],CRED_DM)
 
 wf2={"name":"Ouro Bridge - Liga ID ao Telefone (TikTok)",
  "nodes":[hook("1a mensagem do lead (Leona)","ouro-bridge-lead"),
@@ -114,8 +125,9 @@ wf2={"name":"Ouro Bridge - Liga ID ao Telefone (TikTok)",
    node("Escolher clique","n8n-nodes-base.code",2,[780,0],{"jsCode":pick}),
    dt("Gravar telefone no clique",[1040,0],"update",**by_id(s("$json.id_curto")),columns=mapping({
      "telefone":s("$json.telefone"),"lead_em":s("$json.lead_em"),"casado_por":s("$json.casado_por")})),
-   n_contato, n_envia],
- "connections":chain("1a mensagem do lead (Leona)","Preparar","Clique pelo código ou toques recentes","Escolher clique","Gravar telefone no clique","TikTok: montar Contato","TikTok: enviar Contato"),
+   n_contato, n_qual, n_envia, n_envia_dm],
+ "connections":{**chain("1a mensagem do lead (Leona)","Preparar","Clique pelo código ou toques recentes","Escolher clique","Gravar telefone no clique","TikTok: montar Contato","Produto é diabetes?"),
+   "Produto é diabetes?":{"main":[[{"node":"TikTok: enviar Contato (diabetes)","type":"main","index":0}],[{"node":"TikTok: enviar Contato","type":"main","index":0}]]}},
  "settings":{"executionOrder":"v1","saveDataSuccessExecution":"none","saveDataErrorExecution":"all"}}
 
 # 4) Engajamento: a página manda o estado ACUMULADO (ficou 5s, rolou 50%, rolagem máx, tempo)
