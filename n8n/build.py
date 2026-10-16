@@ -44,7 +44,8 @@ const telefone = String(b.telefone ?? (b.contact && b.contact.number) ?? '').rep
 if (!telefone) return [];
 const agora = Date.now();
 const JANELA_MIN = 10; // procura toques no botão nos últimos X minutos
-const m = String(b.mensagem ?? '').match(/(?:\[ID:|c[oó]digo de atendimento:?\s*)([a-z0-9]{6,16})/i);
+// código do go.html = Date.now().toString(36) (8) + 2 aleatórios = sempre 10 caracteres; pega só 10 (texto colado depois não atrapalha)
+const m = String(b.mensagem ?? '').match(/(?:\[ID:|c[oó]digo de atendimento:?\s*)([a-z0-9]{10})/i);
 const produto = String(b.produto || 'paes').toLowerCase().trim(); // cada fluxo da Leona manda o seu; sem campo = pães
 return [{ json: {
   telefone,
