@@ -21,6 +21,16 @@
     document.head.appendChild(l);
   })();
 </script>
+<script>
+  /* ===== TESTE DO AVISO ABAIXO DO BOTÃO (av1) =====
+     0 = sem aviso | 1 = com aviso "Ao abrir o WhatsApp, é só tocar em enviar". Sorteio fixo por visitante. Forçar: ?av=0 / ?av=1 */
+  (function () {
+    var ok = ["0", "1"], f = new URLSearchParams(location.search).get("av") || "", x = ok.indexOf(f) >= 0 ? f : "";
+    if (!x) { try { x = localStorage.getItem("av1") || ""; } catch (e) {} if (ok.indexOf(x) < 0) x = ""; }
+    if (!x) { x = ok[Math.floor(Math.random() * 2)]; try { localStorage.setItem("av1", x); } catch (e) {} }
+    window.__av = x; document.documentElement.setAttribute("data-av", x);
+  })();
+</script>
 <style>
   :root {
     --bg: #f7f1e6; --text: #3a2f25; --muted: #6e5a44; --brand: #2f4a2a;
@@ -136,6 +146,8 @@
   #barra.on { transform: none; }
   #meio { position: absolute; top: 50%; left: 0; width: 1px; height: 1px; pointer-events: none; }
   #barra .cta { min-height: 52px; max-width: 448px; margin: 0 auto; }
+  .aviso { display: none; margin-top: 8px; font-size: .88rem; font-weight: 600; color: var(--brand); }
+  html[data-av="1"] .aviso { display: block; }
 </style>
 </head>
 <body>
@@ -161,6 +173,7 @@
       <h1>Pão caseiro, fofinho e sem culpa</h1>
       <p class="sub">50 receitas de pães sem glúten, sem açúcar refinado e sem lactose — do jeitinho que você viu no vídeo.</p>
       <a id="cta-topo" class="cta" href="#" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.31-1.96 1.36-.5.05-.97.23-3.27-.68-2.76-1.09-4.5-3.92-4.64-4.1-.13-.18-1.1-1.47-1.1-2.8 0-1.33.7-1.99.95-2.26.24-.27.53-.34.71-.34h.51c.16 0 .38-.06.6.46.23.54.77 1.87.84 2.01.07.13.11.29.02.47-.09.18-.13.29-.27.45-.13.16-.28.35-.4.47-.13.13-.27.28-.12.55.16.27.7 1.15 1.49 1.86 1.03.92 1.9 1.2 2.17 1.34.27.13.43.11.58-.07.16-.18.67-.78.85-1.05.18-.27.36-.22.6-.13.25.09 1.57.74 1.84.88.27.13.45.2.51.31.07.11.07.65-.17 1.32z"/></svg> Receber as receitas no WhatsApp</a>
+      <p class="aviso">📲 Ao abrir o WhatsApp, é só tocar em <b>enviar ➤</b></p>
       <p class="garantia"><span class="nao-b">✅ Você recebe as receitas primeiro e <b>só paga depois!</b></span><span class="so-b">✅ <b>R$ 18,90</b> · você recebe primeiro e <b>só paga depois!</b></span></p>
       <p class="prova">⭐⭐⭐⭐⭐ <b>+90.000 clientes</b> já compraram nossas receitas</p>
       <p class="micro">Resposta em 1 minuto • Pagamento via Pix</p>
@@ -233,6 +246,7 @@
     <section class="final">
       <h2>Pronta para fazer o seu primeiro pão sem culpa?</h2>
       <a class="cta" href="#" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.31-1.96 1.36-.5.05-.97.23-3.27-.68-2.76-1.09-4.5-3.92-4.64-4.1-.13-.18-1.1-1.47-1.1-2.8 0-1.33.7-1.99.95-2.26.24-.27.53-.34.71-.34h.51c.16 0 .38-.06.6.46.23.54.77 1.87.84 2.01.07.13.11.29.02.47-.09.18-.13.29-.27.45-.13.16-.28.35-.4.47-.13.13-.27.28-.12.55.16.27.7 1.15 1.49 1.86 1.03.92 1.9 1.2 2.17 1.34.27.13.43.11.58-.07.16-.18.67-.78.85-1.05.18-.27.36-.22.6-.13.25.09 1.57.74 1.84.88.27.13.45.2.51.31.07.11.07.65-.17 1.32z"/></svg> Receber as receitas no WhatsApp</a>
+      <p class="aviso">📲 Ao abrir o WhatsApp, é só tocar em <b>enviar ➤</b></p>
       <p class="micro">Atendimento rápido pelo WhatsApp</p>
     </section>
   </div>
@@ -353,7 +367,7 @@
       ttclid: ttclid,
       ad: ad,
       produto: produto,
-      pagina: "c1-" + (window.__num || WHATSAPP_NUMERO).slice(-4),
+      pagina: "c1-" + (window.__num || WHATSAPP_NUMERO).slice(-4) + "-av" + (window.__av || "0"),
       timestamp: new Date().toISOString()
     }, utms));
     try {
