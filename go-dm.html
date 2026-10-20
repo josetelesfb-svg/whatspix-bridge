@@ -213,7 +213,7 @@
   const WEBHOOK_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-clique";
   const WEBHOOK_CTA_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-cta"; // toque no botão
   // Números que atendem o produto (todos no mesmo fluxo da Leona). Cada visitante cai em um, sorteado e fixo.
-  // Para tirar um número (ex.: chip caiu), apague-o da lista.
+  // Número com chip caído sai sozinho do sorteio (n8n numeros-no-ar); apagar daqui só se for desativar de vez.
   const NUMEROS = ["5579991068524", "5579991073931"];
   const WHATSAPP_NUMERO = (function () {
     var n = ""; try { n = localStorage.getItem("dm1_n") || ""; } catch (e) {}
@@ -260,6 +260,29 @@
       ctas[i].href = link;
       ctas[i].addEventListener("click", avisaToque);
     }
+
+    // Pula número caído: pergunta ao n8n quais números estão no ar (lido da Leona a cada 2 min).
+    // Sem resposta em 1,5 s, ou cache velho, fica o número sorteado acima.
+    (function () {
+      var LISTA = NUMEROS, CHAVE = "dm1_n";
+      try {
+        var ac = window.AbortController ? new AbortController() : null;
+        if (ac) setTimeout(function () { ac.abort(); }, 1500);
+        fetch("https://n8n.srv1661587.hstgr.cloud/webhook/numeros-no-ar", { cache: "no-store", signal: ac ? ac.signal : undefined })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!d || !d.ok || !d.ok.length) return;
+            var noAr = function (x) { return d.ok.some(function (o) { return o.slice(-8) === x.slice(-8); }); };
+            var vivos = LISTA.filter(noAr);
+            if (!vivos.length || noAr(VV.numero)) return;
+            var novo = vivos[Math.floor(Math.random() * vivos.length)];
+            try { localStorage.setItem(CHAVE, novo); } catch (e) {}
+            link = link.replace("wa.me/" + VV.numero, "wa.me/" + novo);
+            VV.numero = novo;
+            for (var j = 0; j < ctas.length; j++) ctas[j].href = link;
+          }).catch(function () {});
+      } catch (e) {}
+    })();
 
     // Barra fixa do rodapé: aparece quando o botão principal sai da tela
     var barra = document.getElementById("barra");

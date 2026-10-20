@@ -8,8 +8,8 @@
 <script>
   /* ===== VERSÃO FINAL (C venceu o A/B/C em 12/10/2026) =====
      Todos os números rodam o MESMO fluxo na Leona (versão C). Cada visitante cai em um número, sorteado e fixo.
-     Para tirar um número (ex.: chip caiu), apague-o da lista. */
-  window.NUMEROS = ["5579991073078", "5579991068519"];
+     Número com chip caído sai sozinho do sorteio (n8n numeros-no-ar); apagar daqui só se for desativar de vez. */
+  window.NUMEROS = ["5579991073078", "5579991122305", "5579991068519"];
   window.MSG_WA = "Olá! Vim pelo anúncio e quero saber mais.";
   (function () {
     var N = window.NUMEROS, n = "";
@@ -310,6 +310,29 @@
       ctas[i].href = link;
       ctas[i].addEventListener("click", avisaToque);
     }
+
+    // Pula número caído: pergunta ao n8n quais números estão no ar (lido da Leona a cada 2 min).
+    // Sem resposta em 1,5 s, ou cache velho, fica o número sorteado acima.
+    (function () {
+      var LISTA = window.NUMEROS, CHAVE = "c1_n";
+      try {
+        var ac = window.AbortController ? new AbortController() : null;
+        if (ac) setTimeout(function () { ac.abort(); }, 1500);
+        fetch("https://n8n.srv1661587.hstgr.cloud/webhook/numeros-no-ar", { cache: "no-store", signal: ac ? ac.signal : undefined })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!d || !d.ok || !d.ok.length) return;
+            var noAr = function (x) { return d.ok.some(function (o) { return o.slice(-8) === x.slice(-8); }); };
+            var vivos = LISTA.filter(noAr);
+            if (!vivos.length || noAr(VV.numero)) return;
+            var novo = vivos[Math.floor(Math.random() * vivos.length)];
+            try { localStorage.setItem(CHAVE, novo); } catch (e) {}
+            link = link.replace("wa.me/" + VV.numero, "wa.me/" + novo);
+            VV.numero = novo;
+            for (var j = 0; j < ctas.length; j++) ctas[j].href = link;
+          }).catch(function () {});
+      } catch (e) {}
+    })();
 
     // Barra fixa do rodapé: aparece quando o botão principal sai da tela
     var barra = document.getElementById("barra");
