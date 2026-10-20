@@ -45,7 +45,7 @@ if (!telefone) return [];
 const agora = Date.now();
 const JANELA_MIN = 10; // procura toques no botão nos últimos X minutos
 // código do go.html = Date.now().toString(36) (8) + 2 aleatórios = sempre 10 caracteres; pega só 10 (texto colado depois não atrapalha)
-const m = String(b.mensagem ?? '').match(/(?:\[ID:|c[oó]digo de atendimento:?\s*)([a-z0-9]{10})/i);
+const m = String(b.mensagem ?? '').match(/(?:\[ID:|c[oó]digo de atendimento:?\s*|c[oó]digo de atenci[oó]n:?\s*)([a-z0-9]{10})/i);
 const produto = String(b.produto || 'paes').toLowerCase().trim(); // cada fluxo da Leona manda o seu; sem campo = pães
 return [{ json: {
   telefone,
@@ -78,7 +78,7 @@ contato = SHA + r"""
 
 // Lead do WhatsApp ligado a um clique do anúncio -> evento Contact no TikTok (Events API).
 const TEST_EVENT_CODE = '__TT_TEST__'; // vazio = produção
-const PIXELS = { paes: 'DAJ8RVRC77U250DBPJ3G', diabeticos: 'DB3IS5RC77UEHJIKB2O0' }; // 1 pixel por produto
+const PIXELS = { paes: 'DAJ8RVRC77U250DBPJ3G', diabeticos: 'DB3IS5RC77UEHJIKB2O0', dm_mx: 'DBBQIEBC77U4IBODET9G' }; // 1 pixel por produto
 const esc = $('Escolher clique').first().json;          // id_curto, telefone, casado_por
 const row = ($input.first() && $input.first().json) || {}; // linha atualizada (ttclid, ip, ua...)
 const prod = row.produto || 'paes';
@@ -99,13 +99,14 @@ const body = {
     event_id: 'lead_' + esc.id_curto,               // 1 Contato por clique (dedup no TikTok)
     user,
     properties: { content_type: 'product', contents: [{ content_id: row.produto || 'ebook', quantity: 1 }] },
-    page: { url: 'https://josetelesfb-svg.github.io/whatspix-bridge/go.html' },
+    page: { url: 'https://josetelesfb-svg.github.io/whatspix-bridge/' + (prod === 'dm_mx' ? 'go-dm-mx.html' : 'go.html') },
   }],
 };
 if (TEST_EVENT_CODE) body.test_event_code = TEST_EVENT_CODE;
 return [{ json: { body, prod } }];""".replace("__TT_TEST__", TT_TEST)
 CRED={"httpHeaderAuth":{"id":"RuEJBMyXZeLbum8u","name":"TikTok Events API - jota-digital-tiktok"}}
 CRED_DM={"httpHeaderAuth":{"id":open(os.path.expanduser("~/.config/ouro-bridge/cred_tiktok_diabetes")).read().strip(),"name":"TikTok Events API - diabetes"}}
+CRED_DMMX={"httpHeaderAuth":{"id":open(os.path.expanduser("~/.config/ouro-bridge/cred_tiktok_dm_mx")).read().strip(),"name":"TikTok Events API - diabetes MX"}}
 n_contato = node("TikTok: montar Contato","n8n-nodes-base.code",2,[1300,0],{"jsCode":contato},onError="continueRegularOutput")
 n_qual = node("Produto é diabetes?","n8n-nodes-base.if",2.2,[1560,0],{"conditions":{"options":{"caseSensitive":True,"leftValue":"","typeValidation":"strict","version":2},
    "conditions":[{"id":"prod-dm","leftValue":"={{ $json.prod }}","rightValue":"diabeticos","operator":{"type":"string","operation":"equals"}}],"combinator":"and"},"options":{}})
@@ -116,6 +117,10 @@ def envia(nome,pos,cred): return node(nome,"n8n-nodes-base.httpRequest",4.2,pos,
   onError="continueRegularOutput",credentials=cred)
 n_envia = envia("TikTok: enviar Contato",[1820,100],CRED)            # pães (e futuros sem credencial própria caem fora antes)
 n_envia_dm = envia("TikTok: enviar Contato (diabetes)",[1820,-100],CRED_DM)
+n_envia_dmmx = envia("TikTok: enviar Contato (diabetes MX)",[1820,-320],CRED_DMMX)
+n_qual_mx = json.loads(json.dumps(n_qual).replace('"Produto é diabetes?"','"Produto é diabetes MX?"').replace('"prod-dm"','"prod-dmmx"').replace('"rightValue": "diabeticos"','"rightValue": "dm_mx"'))
+n_qual_mx.update(name="Produto é diabetes MX?", id=str(uuid.uuid5(uuid.NAMESPACE_URL,"Produto é diabetes MX?")), position=[1560,-220])
+n_qual_mx["parameters"]["conditions"]["conditions"][0].update(id="prod-dmmx", rightValue="dm_mx")
 
 wf2={"name":"Ouro Bridge - Liga ID ao Telefone (TikTok)",
  "nodes":[hook("1a mensagem do lead (Leona)","ouro-bridge-lead"),
@@ -126,8 +131,9 @@ wf2={"name":"Ouro Bridge - Liga ID ao Telefone (TikTok)",
    node("Escolher clique","n8n-nodes-base.code",2,[780,0],{"jsCode":pick}),
    dt("Gravar telefone no clique",[1040,0],"update",**by_id(s("$json.id_curto")),columns=mapping({
      "telefone":s("$json.telefone"),"lead_em":s("$json.lead_em"),"casado_por":s("$json.casado_por")})),
-   n_contato, n_qual, n_envia, n_envia_dm],
- "connections":{**chain("1a mensagem do lead (Leona)","Preparar","Clique pelo código ou toques recentes","Escolher clique","Gravar telefone no clique","TikTok: montar Contato","Produto é diabetes?"),
+   n_contato, n_qual_mx, n_qual, n_envia, n_envia_dm, n_envia_dmmx],
+ "connections":{**chain("1a mensagem do lead (Leona)","Preparar","Clique pelo código ou toques recentes","Escolher clique","Gravar telefone no clique","TikTok: montar Contato","Produto é diabetes MX?"),
+   "Produto é diabetes MX?":{"main":[[{"node":"TikTok: enviar Contato (diabetes MX)","type":"main","index":0}],[{"node":"Produto é diabetes?","type":"main","index":0}]]},
    "Produto é diabetes?":{"main":[[{"node":"TikTok: enviar Contato (diabetes)","type":"main","index":0}],[{"node":"TikTok: enviar Contato","type":"main","index":0}]]}},
  "settings":{"executionOrder":"v1","saveDataSuccessExecution":"none","saveDataErrorExecution":"all"}}
 
