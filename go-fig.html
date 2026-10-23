@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Adeus Gordura no Fígado | Projeto Vida Saudável</title>
+<link rel="preload" as="image" href="img/fig/hero.jpg">
+<style>
+  :root {
+    --bg: #f6f4ec; --text: #3a2f25; --muted: #6e5a44; --brand: #2f4a2a;
+    --wa: #25d366; --wa-dark: #1da851; --line: #eadcc4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body {
+    position: relative;
+    color: var(--text); background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse 120% 55% at 50% 0%, rgba(255,253,247,.9) 0%, rgba(255,253,247,0) 70%),
+      linear-gradient(180deg, rgba(247,241,230,0) 55%, #efe3cf 100%),
+      url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22%3E%3Cdefs%3E%3Cg id=%22f%22%3E%3Cpath d=%22M0 0 Q3 -30 0 -60%22 fill=%22none%22 stroke-width=%221.3%22/%3E%3Cpath d=%22M0 -14 C-14 -16 -20 -26 -20 -34 C-10 -32 -3 -24 0 -14Z%22 stroke=%22none%22/%3E%3Cpath d=%22M1 -26 C15 -28 21 -38 21 -46 C11 -44 4 -36 1 -26Z%22 stroke=%22none%22/%3E%3Cpath d=%22M0 -40 C-11 -42 -16 -50 -16 -57 C-8 -55 -2 -48 0 -40Z%22 stroke=%22none%22/%3E%3Cpath d=%22M0 -60 C-5 -66 -4 -74 0 -78 C4 -74 5 -66 0 -60Z%22 stroke=%22none%22/%3E%3C/g%3E%3C/defs%3E%3Cg fill=%22%237d9b6a%22 stroke=%22%237d9b6a%22 stroke-linecap=%22round%22 opacity=%220.20%22%3E%3Cuse href=%22%23f%22 transform=%22translate(48 112) rotate(-22) scale(1.05)%22/%3E%3Cuse href=%22%23f%22 transform=%22translate(152 98) rotate(20) scale(0.78)%22/%3E%3Cuse href=%22%23f%22 transform=%22translate(112 196) rotate(-6) scale(0.88)%22/%3E%3Cuse href=%22%23f%22 transform=%22translate(22 198) rotate(28) scale(0.6)%22/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 100% 100%, 100% 100%, 200px 200px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.45; -webkit-font-smoothing: antialiased;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  .serif { font-family: Georgia, "Times New Roman", serif; }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 0 20px; }
+  section { padding: 28px 0 8px; }
+  h2 { font-family: Georgia, "Times New Roman", serif; color: var(--brand); font-size: 1.6rem; line-height: 1.15; text-align: center; margin-bottom: 16px; }
+
+  /* 1. faixa do topo */
+  .faixa { background: var(--brand); color: #f7f1e6; text-align: center; font-size: .82rem; padding: 8px 12px; }
+
+  /* 2. hero */
+  .hero-img { position: relative; max-width: 480px; margin: 0 auto; aspect-ratio: 1 / 1; max-height: 46vh; overflow: hidden; }
+  .hero-img img { width: 100%; height: 100%; object-fit: cover; display: block; background: #e6ebdc; }
+  .hero-img .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: #eadcc4; color: #8a7358; font-size: .95rem; text-align: center; padding: 20px; }
+  .hero-img::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 16%;
+    background: linear-gradient(180deg, rgba(247,241,230,0), var(--bg)); }
+  .hero { margin-top: -14px; position: relative; text-align: center; }
+  .selo { display: flex; align-items: center; gap: 10px; justify-content: center; font-size: .85rem; font-weight: 700; color: var(--muted); }
+  .selo::before, .selo::after { content: ""; flex: 1; max-width: 60px; border-top: 2px dotted #c9b28c; }
+  h1 { font-family: Georgia, "Times New Roman", serif; color: var(--brand); font-size: 2.15rem; line-height: 1.08; margin: 8px 0 10px; }
+  .sub { color: var(--text); font-size: 1.02rem; margin-bottom: 18px; }
+  .micro { font-size: .8rem; color: var(--muted); margin-top: 8px; }
+  .so-b { display: none; }
+  html[data-v="B"] .so-b { display: inline; }
+  html[data-v="B"] .nao-b { display: none; }
+  .prova { margin-top: 10px; font-size: .86rem; color: var(--text); }
+  .prova b { color: var(--brand); }
+  .garantia { margin-top: 12px; font-size: .95rem; color: var(--brand); background: rgba(255,255,255,.75); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
+
+  /* botões */
+  .cta { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+    min-height: 60px; padding: 16px 14px; border-radius: 999px; background: var(--wa); color: #fff;
+    font-size: clamp(.95rem, 4.3vw, 1.1rem); font-weight: 800; white-space: nowrap; letter-spacing: -.01em; text-decoration: none; box-shadow: 0 6px 18px rgba(37,211,102,.35);
+    -webkit-tap-highlight-color: transparent; }
+  .cta:active { background: var(--wa-dark); transform: scale(.98); }
+  .cta svg { width: 22px; height: 22px; flex: none; fill: currentColor; }
+
+  /* 3. ebook */
+  .ebook { position: relative; width: 62%; max-width: 250px; margin: 6px auto 0; }
+  .ebook img { width: 100%; height: auto; display: block; border-radius: 12px; border: 7px solid #1f1f1f;
+    box-shadow: 0 16px 34px rgba(47,42,34,.32); transform: rotate(-4deg); }
+  .badge50 { position: absolute; right: -22px; bottom: -10px; width: 78px; height: 78px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #e5c77a, #b8913e); color: #fff; text-align: center;
+    display: flex; flex-direction: column; justify-content: center; box-shadow: 0 6px 14px rgba(0,0,0,.2);
+    font-family: Georgia, serif; line-height: 1; border: 2px solid #f3e2b4; }
+  .badge50 b { font-size: 1.45rem; } .badge50 span { font-size: .62rem; letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
+
+  /* 4. benefícios */
+  .benef { display: grid; gap: 10px; }
+  .benef div { display: flex; gap: 14px; align-items: center; background: rgba(255,255,255,.88);
+    border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: .95rem; }
+  .benef svg { width: 34px; height: 34px; flex: none; stroke: var(--brand); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .benef b { color: var(--brand); }
+
+  /* 5. receitas */
+  .receitas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .receitas figure { text-align: center; }
+  .receitas img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 12px; display: block; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
+  .receitas figcaption { font-size: .8rem; font-weight: 700; margin-top: 6px; color: var(--text); }
+
+  /* bônus */
+  .bonus { list-style: none; display: grid; gap: 8px; }
+  .bonus li { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.88); border: 1px solid var(--line);
+    border-radius: 12px; padding: 11px 14px; font-weight: 600; }
+  .bonus span { font-size: 1.2rem; }
+
+  /* 6. como funciona */
+  .passos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; font-size: .86rem; }
+  .passos b { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin: 0 auto 6px;
+    border-radius: 50%; background: var(--wa); color: #fff; font-size: 1rem; }
+
+  /* 7. depoimentos (clientes reais; nome abreviado por privacidade) */
+  .depo { display: grid; gap: 10px; }
+  .depo div { display: flex; gap: 10px; align-items: flex-start; }
+  .depo i { flex: none; width: 38px; height: 38px; border-radius: 50%; background: #d9c7b0; color: #fff; font-style: normal;
+    font-weight: 700; font-size: .8rem; display: flex; align-items: center; justify-content: center; }
+  .depo p { background: #fff; border-radius: 4px 16px 16px 16px; padding: 10px 14px; font-size: .93rem; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .depo b { display: block; font-size: .82rem; color: var(--brand); margin-bottom: 2px; }
+
+  /* 8. perguntas */
+  details { border-bottom: 1px solid var(--line); padding: 14px 2px; }
+  summary { font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 10px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "⌄"; color: var(--muted); }
+  details[open] summary::after { content: "⌃"; }
+  details p { margin-top: 8px; color: var(--muted); font-size: .93rem; }
+
+  /* 9. final */
+  .final { text-align: center; padding-bottom: 20px; }
+  .final h2 { margin-bottom: 18px; }
+
+  /* 10. barra fixa */
+  #barra { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: #fff; box-shadow: 0 -6px 18px rgba(0,0,0,.1);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); transform: translateY(110%); transition: transform .25s; }
+  #barra.on { transform: none; }
+  #meio { position: absolute; top: 50%; left: 0; width: 1px; height: 1px; pointer-events: none; }
+  #barra .cta { min-height: 52px; max-width: 448px; margin: 0 auto; }
+</style>
+</head>
+<body>
+  <div id="meio" aria-hidden="true"></div>
+  <div class="faixa">🎁 Hoje: bônus 50 Sucos Detox para quem pedir pelo WhatsApp</div>
+
+  <div class="hero-img">
+    <img src="img/fig/hero.jpg" width="600" height="600" alt="Salmão grelhado com arroz e legumes, uma das receitas do livro" fetchpriority="high">
+  </div>
+
+  <div class="wrap">
+    <div class="hero">
+      <p class="selo">Projeto Vida Saudável</p>
+      <h1>Adeus Gordura no Fígado</h1>
+      <p class="sub">Mais de 50 receitas naturais e práticas + Plano Alimentar de 21 Dias. Café da manhã, almoço, jantar e sucos.</p>
+      <a id="cta-topo" class="cta" href="#" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.31-1.96 1.36-.5.05-.97.23-3.27-.68-2.76-1.09-4.5-3.92-4.64-4.1-.13-.18-1.1-1.47-1.1-2.8 0-1.33.7-1.99.95-2.26.24-.27.53-.34.71-.34h.51c.16 0 .38-.06.6.46.23.54.77 1.87.84 2.01.07.13.11.29.02.47-.09.18-.13.29-.27.45-.13.16-.28.35-.4.47-.13.13-.27.28-.12.55.16.27.7 1.15 1.49 1.86 1.03.92 1.9 1.2 2.17 1.34.27.13.43.11.58-.07.16-.18.67-.78.85-1.05.18-.27.36-.22.6-.13.25.09 1.57.74 1.84.88.27.13.45.2.51.31.07.11.07.65-.17 1.32z"/></svg> Receber as receitas no WhatsApp</a>
+      <p class="garantia">✅ Você recebe as receitas primeiro e <b>só paga depois!</b></p>
+      <p class="prova">⭐⭐⭐⭐⭐ <b>+90.000 clientes</b> já compraram nossas receitas</p>
+      <p class="micro">Resposta em 1 minuto • Pagamento via Pix</p>
+    </div>
+
+    <section>
+      <div class="ebook">
+        <img src="img/fig/capa-sm.jpg" width="360" height="509" alt="Capa do livro Adeus Gordura no Fígado" loading="lazy">
+        <div class="badge50"><b>+50</b><span>receitas</span></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="benef">
+        <div><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="13"/><path d="M16 25V10M16 14c-3-1-4-3-4-5 3 0 4 2 4 5zM16 14c3-1 4-3 4-5-3 0-4 2-4 5zM16 19c-3-1-4-3-4-5 3 0 4 2 4 5zM16 19c3-1 4-3 4-5-3 0-4 2-4 5zM7 25 25 7"/></svg>
+          <p><b>Mais de 50 receitas naturais e práticas</b> — do café da manhã ao jantar, e sucos</p></div>
+        <div><svg viewBox="0 0 32 32"><path d="M6 14c0-4 4-6 10-6s10 2 10 6c0 2-1 3-2 3v8H8v-8c-1 0-2-1-2-3z"/><path d="M12 17v4M16 17v5M20 17v4"/></svg>
+          <p><b>Plano Alimentar de 21 Dias</b> — você sabe o que preparar em cada refeição</p></div>
+        <div><svg viewBox="0 0 32 32"><path d="M5 15h22c0 6-5 10-11 10S5 21 5 15z"/><path d="M19 15 25 5"/><path d="M11 25h10"/></svg>
+          <p><b>Sem chá milagroso nem dieta complicada</b> — passo a passo simples, com ingredientes fáceis de achar</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Algumas receitas que você vai receber</h2>
+      <div class="receitas">
+        <figure><img src="img/fig/r1.jpg" width="320" height="320" alt="" loading="lazy"><figcaption>Couve-flor Assada</figcaption></figure>
+        <figure><img src="img/fig/r2.jpg" width="320" height="320" alt="" loading="lazy"><figcaption>Salada Colorida</figcaption></figure>
+        <figure><img src="img/fig/r3.jpg" width="320" height="320" alt="" loading="lazy"><figcaption>Frango Grelhado</figcaption></figure>
+      </div>
+    </section>
+
+    <section>
+      <h2>E ainda ganha um bônus</h2>
+      <ul class="bonus">
+        <li><span>🎁</span>50 Sucos Detox</li>
+                      </ul>
+    </section>
+
+    <section>
+      <h2>Como funciona</h2>
+      <div class="passos">
+        <p><b>1</b>Toque no botão verde</p>
+        <p><b>2</b>Fale com a gente no WhatsApp</p>
+        <p><b>3</b>Receba as receitas e pague depois</p>
+      </div>
+    </section>
+
+    <!-- DEPOIMENTOS: entram quando tivermos depoimentos REAIS de clientes deste ebook -->
+
+    <section>
+      <h2>Perguntas rápidas</h2>
+      <details><summary>Como recebo o ebook?</summary>
+        <p>Toque no botão verde e fale com a gente no WhatsApp. O ebook em PDF chega direto na conversa.</p></details>
+      <details><summary>Para quem são as receitas?</summary>
+        <p>Para quem quer comer de forma mais leve e natural, com receitas práticas do dia a dia. Elas não substituem a orientação do seu médico ou nutricionista.</p></details>
+      <details><summary>Como é o pagamento?</summary>
+        <p>Você recebe as receitas primeiro e só paga depois, via Pix.</p></details>
+    </section>
+
+    <section class="final">
+      <h2>Pronta para começar hoje?</h2>
+      <a class="cta" href="#" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.31-1.96 1.36-.5.05-.97.23-3.27-.68-2.76-1.09-4.5-3.92-4.64-4.1-.13-.18-1.1-1.47-1.1-2.8 0-1.33.7-1.99.95-2.26.24-.27.53-.34.71-.34h.51c.16 0 .38-.06.6.46.23.54.77 1.87.84 2.01.07.13.11.29.02.47-.09.18-.13.29-.27.45-.13.16-.28.35-.4.47-.13.13-.27.28-.12.55.16.27.7 1.15 1.49 1.86 1.03.92 1.9 1.2 2.17 1.34.27.13.43.11.58-.07.16-.18.67-.78.85-1.05.18-.27.36-.22.6-.13.25.09 1.57.74 1.84.88.27.13.45.2.51.31.07.11.07.65-.17 1.32z"/></svg> Receber as receitas no WhatsApp</a>
+      <p class="micro">Atendimento rápido pelo WhatsApp</p>
+      <p class="micro">Este material não substitui a orientação do seu médico ou nutricionista.</p>
+    </section>
+  </div>
+
+  <div id="barra"><a class="cta" href="#" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.03c-.24.68-1.42 1.31-1.96 1.36-.5.05-.97.23-3.27-.68-2.76-1.09-4.5-3.92-4.64-4.1-.13-.18-1.1-1.47-1.1-2.8 0-1.33.7-1.99.95-2.26.24-.27.53-.34.71-.34h.51c.16 0 .38-.06.6.46.23.54.77 1.87.84 2.01.07.13.11.29.02.47-.09.18-.13.29-.27.45-.13.16-.28.35-.4.47-.13.13-.27.28-.12.55.16.27.7 1.15 1.49 1.86 1.03.92 1.9 1.2 2.17 1.34.27.13.43.11.58-.07.16-.18.67-.78.85-1.05.18-.27.36-.22.6-.13.25.09 1.57.74 1.84.88.27.13.45.2.51.31.07.11.07.65-.17 1.32z"/></svg> Receber as receitas no WhatsApp</a></div>
+
+<script>
+  /* ================== CONFIGURAÇÃO (EDITAR AQUI) ================== */
+  const WEBHOOK_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-clique";
+  const WEBHOOK_CTA_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-cta"; // toque no botão
+  // Números que atendem o produto (todos no mesmo fluxo da Leona). Cada visitante cai em um, sorteado e fixo.
+  // Número com chip caído sai sozinho do sorteio (n8n numeros-no-ar); apagar daqui só se for desativar de vez.
+  const NUMEROS = ["5579991107480"];
+  const WHATSAPP_NUMERO = (function () {
+    var n = ""; try { n = localStorage.getItem("fig1_n") || ""; } catch (e) {}
+    if (NUMEROS.indexOf(n) < 0) { n = NUMEROS[Math.floor(Math.random() * NUMEROS.length)]; try { localStorage.setItem("fig1_n", n); } catch (e) {} }
+    return n;
+  })();
+  const MENSAGEM_BASE = "Olá! Vim pelo anúncio e quero saber mais.";
+  /* ================================================================ */
+
+  (function () {
+    // 1) Parâmetros da URL (todos opcionais -> string vazia se ausentes)
+    var params = new URLSearchParams(window.location.search);
+    var ttclid  = params.get("ttclid")  || "";
+    var ad      = params.get("ad")      || "";
+    var produto = params.get("produto") || "figado";
+    // UTMs do anúncio (modelo da Utmify) — repassadas pra Utmify na hora da venda
+    var UTMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+    var utms = {};
+    UTMS.forEach(function (k) { utms[k] = (params.get(k) || "").slice(0, 300); });
+
+    // 2) ID curto: timestamp em base36 (8 chars) + 2 chars aleatórios = 10 chars [a-z0-9]
+    var id_curto = Date.now().toString(36) +
+                   Math.random().toString(36).slice(2, 4).padEnd(2, "0");
+
+    // 4) Link do WhatsApp -> href real do botão (sem redirect por JS)
+    var VV = (window.VARIANTES && window.VARIANTES[window.__v]) || { numero: WHATSAPP_NUMERO, msg: MENSAGEM_BASE };
+    var mensagem = VV.msg + " Meu código de atendimento: " + id_curto;
+    var link = "https://wa.me/" + VV.numero + "?text=" + encodeURIComponent(mensagem);
+    var ctas = document.querySelectorAll(".cta");
+
+    // Toque no botão: avisa o n8n (hora do toque = como ligamos o clique ao telefone
+    // que a Leona manda segundos depois). Não bloqueia a abertura do WhatsApp.
+    function avisaToque() {
+      if (WEBHOOK_CTA_URL.indexOf("http") !== 0) return;
+      var dados = new URLSearchParams({ id_curto: id_curto, ttclid: ttclid, ad: ad, produto: produto });
+      try {
+        if (!(navigator.sendBeacon && navigator.sendBeacon(WEBHOOK_CTA_URL, dados))) {
+          fetch(WEBHOOK_CTA_URL, { method: "POST", mode: "no-cors", keepalive: true, body: dados })
+            .catch(function () {});
+        }
+      } catch (e) { /* silencioso */ }
+    }
+    for (var i = 0; i < ctas.length; i++) {
+      ctas[i].href = link;
+      ctas[i].addEventListener("click", avisaToque);
+    }
+
+    // Pula número caído: pergunta ao n8n quais números estão no ar (lido da Leona a cada 2 min).
+    // Sem resposta em 1,5 s, ou cache velho, fica o número sorteado acima.
+    (function () {
+      var LISTA = NUMEROS, CHAVE = "fig1_n";
+      try {
+        var ac = window.AbortController ? new AbortController() : null;
+        if (ac) setTimeout(function () { ac.abort(); }, 1500);
+        fetch("https://n8n.srv1661587.hstgr.cloud/webhook/numeros-no-ar", { cache: "no-store", signal: ac ? ac.signal : undefined })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!d || !d.ok || !d.ok.length) return;
+            var noAr = function (x) { return d.ok.some(function (o) { return o.slice(-8) === x.slice(-8); }); };
+            var vivos = LISTA.filter(noAr);
+            if (!vivos.length || noAr(VV.numero)) return;
+            var novo = vivos[Math.floor(Math.random() * vivos.length)];
+            try { localStorage.setItem(CHAVE, novo); } catch (e) {}
+            link = link.replace("wa.me/" + VV.numero, "wa.me/" + novo);
+            VV.numero = novo;
+            for (var j = 0; j < ctas.length; j++) ctas[j].href = link;
+          }).catch(function () {});
+      } catch (e) {}
+    })();
+
+    // Barra fixa do rodapé: aparece quando o botão principal sai da tela
+    var barra = document.getElementById("barra");
+    var principal = document.getElementById("cta-topo");
+    if (barra && principal && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (e) {
+        barra.classList.toggle("on", !e[0].isIntersecting && e[0].boundingClientRect.top < 0);
+      }).observe(principal);
+    }
+
+    // Engajamento (por que as pessoas saem): manda o estado ACUMULADO em poucos avisos
+    // (aos 5 s, ao rolar 50% e ao sair/abrir o WhatsApp). Independente do botão; falha em silêncio.
+    var ENGAJ_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-engaj";
+    var t0 = Date.now(), est = { ficou_5s: "", rolou_50: "", scroll_max: 0, video_tocou: "" }, ultimo = "";
+    function medeRolagem() {
+      var h = document.documentElement, max = h.scrollHeight - h.clientHeight;
+      var pct = max > 0 ? Math.min(100, Math.round(100 * (window.scrollY || h.scrollTop) / max)) : 100;
+      if (pct > est.scroll_max) est.scroll_max = pct;
+      if (!est.rolou_50 && pct >= 50) est.rolou_50 = "1";
+    }
+    function engaj() {
+      try {
+        medeRolagem();
+        var d = { id_curto: id_curto, ficou_5s: est.ficou_5s, rolou_50: est.rolou_50, video_tocou: est.video_tocou,
+                  scroll_max: String(est.scroll_max), tempo_s: String(Math.round((Date.now() - t0) / 1000)) };
+        var chave = d.ficou_5s + d.rolou_50 + d.video_tocou + d.scroll_max + "|" + d.tempo_s;
+        if (chave === ultimo) return;
+        ultimo = chave;
+        var corpo = new URLSearchParams(d);
+        if (!(navigator.sendBeacon && navigator.sendBeacon(ENGAJ_URL, corpo))) {
+          fetch(ENGAJ_URL, { method: "POST", mode: "no-cors", keepalive: true, body: corpo }).catch(function () {});
+        }
+      } catch (e) { /* silencioso */ }
+    }
+    setTimeout(function () { est.ficou_5s = "1"; engaj(); }, 5000);
+    window.addEventListener("scroll", function () {
+      var tinha = est.rolou_50; medeRolagem(); if (!tinha && est.rolou_50) engaj();
+    }, { passive: true });
+    // reforço: marcador invisível no meio da página (funciona mesmo se o evento de rolagem falhar)
+    var meio = document.getElementById("meio");
+    if (meio && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (e) {
+        if (e[0].isIntersecting && !est.rolou_50) { est.rolou_50 = "1"; if (est.scroll_max < 50) est.scroll_max = 50; engaj(); }
+      }).observe(meio);
+    }
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") engaj(); });
+    window.addEventListener("pagehide", engaj);
+
+    // 3) Envio ao webhook: fire-and-forget, não bloqueia nada, falha em silêncio
+    if (WEBHOOK_URL.indexOf("http") !== 0) return; // placeholder ainda não trocado
+    var payload = new URLSearchParams(Object.assign({
+      id_curto: id_curto,
+      ttclid: ttclid,
+      ad: ad,
+      produto: produto,
+      pagina: "fig1-" + WHATSAPP_NUMERO.slice(-4),
+      timestamp: new Date().toISOString()
+    }, utms));
+    try {
+      // Formato formulário (application/x-www-form-urlencoded) = "simple request":
+      // sem preflight CORS, então o keepalive funciona em todos os navegadores
+      // (inclusive in-app do TikTok), e o n8n já entrega os campos prontos em $json.body.
+      fetch(WEBHOOK_URL, {
+        method: "POST",
+        mode: "no-cors",
+        keepalive: true,
+        body: payload
+      }).catch(function () {});
+    } catch (e) { /* silencioso */ }
+  })();
+</script>
+</body>
+</html>
