@@ -43,7 +43,7 @@ const b = $input.first().json.body || {};
 const telefone = String(b.telefone ?? (b.contact && b.contact.number) ?? '').replace(/\D/g, '');
 if (!telefone) return [];
 const agora = Date.now();
-const JANELA_MIN = 10; // procura toques no botão nos últimos X minutos
+const JANELA_MIN = 2; // procura toques no botão nos últimos X minutos (27/10: 95% dos leads escrevem até 46s depois do toque)
 // código do go.html = Date.now().toString(36) (8) + 2 aleatórios = sempre 10 caracteres; pega só 10 (texto colado depois não atrapalha)
 const m = String(b.mensagem ?? '').match(/(?:\[ID:|c[oó]digo de atendimento:?\s*|c[oó]digo de atenci[oó]n:?\s*)([a-z0-9]{10})/i);
 const produto = String(b.produto || 'paes').toLowerCase().trim(); // cada fluxo da Leona manda o seu; sem campo = pães
@@ -55,7 +55,7 @@ return [{ json: {
   desde: new Date(agora - JANELA_MIN * 60 * 1000).toISOString(),
 } }];"""
 pick=r"""// 1º: se a mensagem trouxe o código de atendimento -> casamento EXATO por id_curto (qualquer horário).
-// 2º: senão, entre os toques no botão sem telefone na janela, escolhe o mais recente.
+// 2º: senão, entre os toques no botão sem telefone na janela, escolhe o de intervalo toque→mensagem mais perto do típico (14s).
 const p = $('Preparar').first().json;
 const todos = $input.all().map(i => i.json).filter(r => r.id_curto);
 let escolhido = p.codigo ? todos.find(r => r.id_curto === p.codigo) : null;
@@ -64,7 +64,10 @@ if (!escolhido) {
   const rows = todos.filter(r => !r.telefone && r.whatsapp_em && r.whatsapp_em >= p.desde && r.whatsapp_em <= p.agora
                              && (r.produto || 'paes') === p.produto); // não cruza leads de produtos diferentes
   if (!rows.length) return [];
-  rows.sort((a, b) => (a.whatsapp_em < b.whatsapp_em ? 1 : -1));
+  const TIPICO_MS = 14 * 1000; // mediana toque→1ª mensagem nos casados por código (27/10)
+  const agoraMs = Date.parse(p.agora);
+  const dist = r => Math.abs((agoraMs - Date.parse(r.whatsapp_em)) - TIPICO_MS);
+  rows.sort((a, b) => dist(a) - dist(b));
   escolhido = rows[0];
   via = rows.length === 1 ? 'horario' : 'horario_' + rows.length + '_candidatos';
 }
