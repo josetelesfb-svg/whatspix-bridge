@@ -9,7 +9,8 @@
   /* ===== VERSÃO FINAL (C venceu o A/B/C em 12/10/2026) =====
      Todos os números rodam o MESMO fluxo na Leona (versão C). Cada visitante cai em um número, sorteado e fixo.
      Número com chip caído sai sozinho do sorteio (n8n numeros-no-ar); apagar daqui só se for desativar de vez. */
-  window.NUMEROS = ["5579991073078", "5579991122308", "5579991142351", "5579991072465"];
+  // Peso = repetição: 2351 é chip novo (31/10) e entra 1 vez → recebe metade de cada um dos outros (2:2:1).
+  window.NUMEROS = ["5579991122308", "5579991122308", "5579991072465", "5579991072465", "5579991142351"];
   window.MSG_WA = "Olá! Vim pelo anúncio e quero saber mais.";
   (function () {
     var N = window.NUMEROS, n = "";
