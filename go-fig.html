@@ -213,7 +213,7 @@
   const WEBHOOK_CTA_URL = "https://n8n.srv1661587.hstgr.cloud/webhook/ouro-bridge-cta"; // toque no botão
   // Números que atendem o produto (todos no mesmo fluxo da Leona). Cada visitante cai em um, sorteado e fixo.
   // Número com chip caído sai sozinho do sorteio (n8n numeros-no-ar); apagar daqui só se for desativar de vez.
-  const NUMEROS = ["5579991107480"];
+  const NUMEROS = ["5579991107480", "5579991107480", "5579991107480", "5579991107467"];
   const WHATSAPP_NUMERO = (function () {
     var n = ""; try { n = localStorage.getItem("fig1_n") || ""; } catch (e) {}
     if (NUMEROS.indexOf(n) < 0) { n = NUMEROS[Math.floor(Math.random() * NUMEROS.length)]; try { localStorage.setItem("fig1_n", n); } catch (e) {} }
