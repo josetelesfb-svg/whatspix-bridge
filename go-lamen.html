@@ -6,10 +6,15 @@
 <meta name="robots" content="noindex, nofollow">
 <title>365 Receitas de Lámen | Chef Kenji</title>
 <script>
-  /* A/B do topo (04/11): F = foto do lámen (controle), M = mockup do livro + 4 bônus. Fixo por visitante. */
+  /* A/B de TEMA (06/11): ATUAL (esta página, foto do lámen) × ANIME (go-lamen-anime.html). 50/50, fixo por visitante.
+     O A/B foto × mockup (04–06/11) foi encerrado: empatado. */
   (function () {
-    var v = ""; try { v = localStorage.getItem("lam1_hero") || ""; } catch (e) {}
-    if (v !== "F" && v !== "M") { v = Math.random() < 0.5 ? "F" : "M"; try { localStorage.setItem("lam1_hero", v); } catch (e) {} }
+    var t = ""; try { t = localStorage.getItem("lam1_tema") || ""; } catch (e) {}
+    if (t !== "ATUAL" && t !== "ANIME") { t = Math.random() < 0.5 ? "ATUAL" : "ANIME"; try { localStorage.setItem("lam1_tema", t); } catch (e) {} }
+    if (t === "ANIME") { window.__redir = true; location.replace("go-lamen-anime.html" + location.search); }
+  })();
+  (function () {
+    var v = "F";
     window.__hero = v; document.documentElement.setAttribute("data-hero", v);
   })();
 </script>
@@ -250,10 +255,11 @@
   /* ================================================================ */
 
   (function () {
+    if (window.__redir) return; // visitante do lado ANIME: a outra página registra
     // 1) Parâmetros da URL (todos opcionais -> string vazia se ausentes)
     var params = new URLSearchParams(window.location.search);
     var ttclid  = params.get("ttclid")  || "";
-    var ad      = params.get("ad")      || ("AB-" + (window.__hero === "M" ? "MOCKUP" : "FOTO"));
+    var ad      = params.get("ad")      || "AB-ATUAL";
     var produto = params.get("produto") || "lamen";
     // UTMs do anúncio (modelo da Utmify) — repassadas pra Utmify na hora da venda
     var UTMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
